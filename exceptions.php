@@ -1,15 +1,13 @@
 <?php
 
 /**
- * This file is part of the Morpheus Framework.
+ * This file is part of the PhpSkelet Framework.
  *
  * @copyright Copyright (c) 2011 Pavel Lang (langpavel at gmail dot com)
- * @license This source file is subject to the Morpheus/LGPL license.
+ * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('Morpheus.php');
-
-//	Some global meaning exceptions (commons to php and Morpheus):
+//	Some global meaning exceptions (commons to php and PhpSkelet):
 //
 //	 + Exception
 //	 |  + LogicException - php
@@ -18,7 +16,7 @@ require_once('Morpheus.php');
 //	 |  + RuntimeException - php
 //	 |     | OutOfBoundsException - php
 //	 |     | UnexpectedValueException - php
-//	 |     + MorpheusException
+//	 |     + PhpSkeletException
 //	 |        + ApplicationException
 //	 |
 //	 + ErrorException - DO NOT USE
@@ -28,13 +26,13 @@ require_once('Morpheus.php');
 // In this file should be only exceptions with global meaning 
 
 /**
- * Base class for all Morpheus Framework exceptions
+ * Base class for all PhpSkelet Framework exceptions
  * @author langpavel
  */
-class MorpheusException extends RuntimeException { }
+class PhpSkeletException extends RuntimeException { }
 
 /**
- * Base class for all user defined Morpheus applications
+ * Base class for all user defined PhpSkelet applications
  * @author langpavel
  */
-class ApplicationException extends MorpheusException { }
+class ApplicationException extends PhpSkeletException { }

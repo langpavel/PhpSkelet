@@ -3,13 +3,13 @@
 /**
  * Debugging utilities
  *
- * This file is part of the Morpheus Framework.
+ * This file is part of the PhpSkelet Framework.
  *
  * @copyright Copyright (c) 2011 Pavel Lang (langpavel at gmail dot com)
- * @license This source file is subject to the Morpheus/LGPL license.
+ * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('../Morpheus.php');
+require_once('../PhpSkelet.php');
 require_once('../Patterns/Singleton.php');
 
 /**
@@ -98,7 +98,7 @@ class Debug extends Singleton
 		if(false !== array_search($var, $this->recurse_detection, true))
 			return 'Recursive dependency detected';
 
-		array_push($this->recurse_detection, &$var);
+		array_push($this->recurse_detection, $var);
 
 		$result = '<table style="border:1px black solid; margin-left:10pt; padding-left:3pt; valign:top;">';
 

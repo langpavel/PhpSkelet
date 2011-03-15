@@ -3,16 +3,16 @@
 /**
  * Autoloader
  *
- * This file is part of the Morpheus Framework.
+ * This file is part of the PhpSkelet Framework.
  *
  * @copyright Copyright (c) 2011 Pavel Lang (langpavel at gmail dot com)
- * @license This source file is subject to the Morpheus/LGPL license.
+ * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
 require_once('../Patterns/Singleton.php');
 
 // specific exception
-class AutoloaderException extends MorpheusException { }
+class AutoloaderException extends PhpSkeletException { }
 
 class Autoloader extends Singleton
 {
@@ -34,12 +34,12 @@ class Autoloader extends Singleton
 	 * @param string $classname Class to be registered
 	 * @param string $file Codebase file of the class
 	 * @param bool[optional] $override default false - set new codebase for class
-	 * @throws MorpheusException
+	 * @throws PhpSkeletException
 	 */
 	public function registerClass($classname, $file, $override = false)
 	{
 		if($override && isset(self::$classes[$classname]))
-			throw new MorpheusException("Class '$classname' is alredy registered in file '".self::$classes[$classname]."'");
+			throw new PhpSkeletException("Class '$classname' is alredy registered in file '".self::$classes[$classname]."'");
 			
 		$this->classes[$classname] = $file;
 	}

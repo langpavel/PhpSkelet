@@ -1,10 +1,10 @@
 <?php
 
 /**
- * This file is part of the Morpheus Framework.
+ * This file is part of the PhpSkelet Framework.
  *
  * @copyright Copyright (c) 2011 Pavel Lang (langpavel at gmail dot com)
- * @license This source file is subject to the Morpheus/LGPL license.
+ * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
 require_once('../Classes/SafeObject.php');
@@ -66,7 +66,7 @@ abstract class Singleton extends SafeObject
 //	{
 //		$callback = array(self::getInstance(), strtolower($name));
 //		if(!function_exists($callback))
-//			throw new MorpheusException("Call to non existing singleton method $name");
+//			throw new PhpSkeletException("Call to non existing singleton method $name");
 //		return call_user_func_array($callback, $arguments);
 //    }
 

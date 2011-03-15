@@ -1,10 +1,10 @@
 <?php
 
 /**
- * This file is part of the Morpheus Framework.
+ * This file is part of the PhpSkelet Framework.
  *
  * @copyright Copyright (c) 2011 Pavel Lang (langpavel at gmail dot com)
- * @license This source file is subject to the Morpheus/LGPL license.
+ * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
 echo '<?xml version="1.0" encoding="utf-8" ?>';

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of the Morpheus Framework.
+ * This file is part of the PhpSkelet Framework.
  *
  * @copyright Copyright (c) 2011 Pavel Lang (langpavel at gmail dot com)
- * @license This source file is subject to the Morpheus/LGPL license.
+ * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('../Classes/Object.php');
+require_once('Object.php');
 
 /**
  * Safe object class - deny setting and reading of undeclared properties
@@ -16,7 +16,7 @@ require_once('../Classes/Object.php');
 abstract class SafeObject extends Object
 {
 
-//	implicitni chovani
+//	implicit behavior |cs> implicitni chovani 
 //	public function __isset( $name )
 //	{
 //		return isset($this->name);
