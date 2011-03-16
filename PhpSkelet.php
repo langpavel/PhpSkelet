@@ -20,16 +20,16 @@ if(!defined('PHPSKELET_AUTOLOADER_ENABLED'))
 	define('PHPSKELET_AUTOLOADER_ENABLED', true);
 
 // common exceptions
-require_once('exceptions.php');
+require_once __DIR__.'/exceptions.php';
 
 // helper functions - cannot be autoloaded
-require_once('debug.php');
+require_once __DIR__.'/debug.php';
 
 // alwais requested classes
-require_once('Classes/Object.php');
-require_once('Classes/SafeObjectMixin.php');
-require_once('Classes/SafeObject.php');
-require_once('Classes/Debug.php');
+require_once __DIR__.'/Classes/Object.php';
+require_once __DIR__.'/Classes/SafeObjectMixin.php';
+require_once __DIR__.'/Classes/SafeObject.php';
+require_once __DIR__.'/Classes/Debug.php';
 
 // error handlers - set_error_handler and set_exception_handler
 Debug::getInstance()->registerErrorHandlers();
@@ -39,11 +39,11 @@ if(PHPSKELET_AUTOLOADER_ENABLED)
 	if(is_file('generated_code/autoloader.php'))
 	{
 		// generated autoloader
-		require_once 'generated_code/autoloader.php';
+		require_once  __DIR__.'/generated_code/autoloader.php';
 	}
 	else
 	{
 		// should this be here? I thing no, but at this moment I leave this here
-		require_once 'Wizards/FirstRun.php';
+		require_once  __DIR__.'/Wizards/FirstRun.php';
 	}
 }

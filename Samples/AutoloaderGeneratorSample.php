@@ -19,7 +19,7 @@ echo '<?xml version="1.0" encoding="utf-8" ?>';
 <h1>Autoloader generator</h1>
 <?php
 
-require_once('../Classes/Reflection/AutoloaderGenerator.php');
+require_once __DIR__.'/../Classes/Reflection/AutoloaderGenerator.php';
 
 $generator = new AutoloaderGenerator();
 $generator->addPath('..', true);
@@ -35,7 +35,7 @@ if($result)
 		echo '<p>File "'.$filename.'" was saved</p>';
 }
 
-require_once('../Classes/Debug.php');
+require_once __DIR__.'/../Classes/Debug.php';
 
 echo Debug::getInstance()->dump($generator);
 

@@ -7,7 +7,7 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('Object.php');
+require_once __DIR__.'/Object.php';
 
 /**
  * Safe object class - deny setting and reading of undeclared properties

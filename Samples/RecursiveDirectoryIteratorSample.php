@@ -8,7 +8,7 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('../PhpSkelet.php');
+require_once __DIR__.'/../PhpSkelet.php';
 
 function test_RecursiveDirectoryIterator($dir)
 {

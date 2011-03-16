@@ -9,18 +9,19 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('../PhpSkelet.php');
-require_once('../Patterns/Singleton.php');
+// make this independent on PhpSkelet Framework
+//require_once __DIR__.'/../PhpSkelet.php';
+//require_once __DIR__.'/../Patterns/Singleton.php';
 
 /**
- * Debugging functionality is gathered here
+ * Debugging visualization is gathered here
  *
  * @author langpavel
  */
-class Debug extends Singleton
+class Debug //extends Singleton
 {
-	private static $id_generator = 1;
-
+//	private static $id_generator = 1;
+//
 //	/**
 //	 * Get html document unique id
 //	 */
@@ -29,6 +30,17 @@ class Debug extends Singleton
 //		return 'debug_'.(self::$id_generator++);
 //	}
 
+	private static $instance = null;
+	
+	/**
+	 * Singleton method
+	 * @return Debug get singleton instance
+	 */
+	public static function getInstance()
+	{
+		return (self::$instance !== null) ? self::$instance : (self::$instance = new Debug()); 
+	}
+	
 	/**
 	 * Dump variable into formatted XHTML string
 	 * @param mixed $var
@@ -48,6 +60,9 @@ class Debug extends Singleton
 		if(is_int($var))
 			return $this->dump_int($var);
 
+		if(is_float($var))
+			return $this->dump_float($var);
+
 		if(is_array($var))
 			return $this->dump_array($var, $magic_helper);
 
@@ -56,7 +71,28 @@ class Debug extends Singleton
 
 		return '???';
 	}
-
+	
+	/**
+	 * Dump array values separated by comma
+	 * @param unknown_type $var
+	 */
+	public function dump_array_comma(array &$var)
+	{
+		$parts = array();
+		foreach($var as $key=>$val)
+		{
+			if(is_integer($key))
+			{
+				$parts[] = $this->dump($val);
+			}
+			else
+			{
+				$parts[] = $this->dump($key).'=>'.$this->dump($val);
+			}
+		}
+		return join(', ', $parts);
+	}
+	
 	protected function writeSpan($content, $color='000', $styles='')
 	{
 		return '<span style="font-family:Monospace;color:#'.$color.';'.$styles.'">'
@@ -66,12 +102,12 @@ class Debug extends Singleton
 
 	protected function dump_null()
 	{
-		return $this->writeSpan('null', 'f80', 'font-weight:bold;');
+		return $this->writeSpan('null', 'c60', 'font-weight:bold;');
 	}
 
 	protected function dump_bool($var)
 	{
-		return $this->writeSpan($var ? 'true' : 'false', 'b40', 'font-weight:bold;');
+		return $this->writeSpan($var ? 'true' : 'false', $var ? '0a0' : 'f00', 'font-weight:bold;');
 	}
 
 	protected function dump_string($var)
@@ -89,6 +125,11 @@ class Debug extends Singleton
 	protected function dump_int($var)
 	{
 		return $this->writeSpan(var_export($var, true), '008', 'font-weight:bold;');
+	}
+
+	protected function dump_float($var)
+	{
+		return $this->writeSpan(var_export($var, true), '804', 'font-weight:bold;');
 	}
 
 	private $recurse_detection = array();
@@ -146,7 +187,7 @@ class Debug extends Singleton
 		$len = count($var);
 
 		if($len === 0 && $var === array())
-			return '<span style="font-family:Monospace;color:#004;font-weight:bold;">array<small>(empty)</small></span></span>';
+			return '<span style="font-family:Monospace;color:#004;font-weight:bold;">array<small>(empty)</small></span>';
 			
 		$js = 'javascript:this.nextSibling.style.display = (this.nextSibling.style.display == "none")?"block":"none"';
 		$result = '<span onclick="'.htmlentities($js).'" style="font-family:Monospace;cursor:pointer;"><span style="color:#004;font-weight:bold;">array</span><small>('.$len.')</small></span>';
@@ -185,7 +226,7 @@ class Debug extends Singleton
 		echo "<div class=\"error$errno\" style=\"font-family:Monospace;\">ERROR $errno: \"$errstr\" in $errfile at line $errline<br /><code><pre>";
 		//echo htmlspecialchars(print_r($errcontext, true));
 		echo '</pre></code></div>';
-		// fallbsck must be set to false when you want to run default handler
+		// fallback must be set to false when you want to run default handler
 		$fallback = !((ini_get('error_reporting') & $errno) | ($errno & (E_ERROR | E_RECOVERABLE_ERROR | E_USER_ERROR)));
 		return $fallback;
 	}
@@ -196,7 +237,7 @@ class Debug extends Singleton
 	 */
 	public function exceptionHandler(Exception $exception)
 	{
-		echo "<div class=\"error\" style=\"font-family:Monospace;\">EXCEPTION: ".$exception->getMessage().' '.$this->dump($exception)."</div>";
+		echo '<div class="error" style="font-family:Monospace;">'.$this->dump($exception).': '.$exception->getMessage().'</div>';
 	}
 	
 }

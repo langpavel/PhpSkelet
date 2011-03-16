@@ -11,9 +11,9 @@
 if(!defined('PHPSKELET_AUTOLOADER_ENABLED'))
 	define('PHPSKELET_AUTOLOADER_ENABLED', false);
 
-require_once('../PhpSkelet.php');
-require_once('SourceGenerator.php');
-require_once('PHPSourceReader.php');
+require_once __DIR__.'/../../PhpSkelet.php';
+require_once __DIR__.'/SourceGenerator.php';
+require_once __DIR__.'/PHPSourceReader.php';
 
 class AutoloaderGenerator extends SourceGenerator
 {
@@ -45,7 +45,7 @@ class AutoloaderGenerator extends SourceGenerator
 	{
 		$this->writeLn();
 		$this->writeLn('// require autoloader class');
-		$this->writeLn("require_once '../Classes/Autoloader.php';");
+		$this->writeLn("require_once __DIR__.'/../Classes/Autoloader.php';");
 	}
 	
 	public function process()

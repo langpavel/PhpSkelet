@@ -8,52 +8,6 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-function dd_array_vals($array)
-{
-	$result = array();
-	foreach($array as $v)
-	{
-		$result[] = dd_var($v);
-	}
-	return implode(', ', $result);
-}
-
-function dd_array(array $array)
-{
-	$result = '<a href="javascript:alert(\'test\')">array</a>';
-	return $result;
-}
-
-function dd_object($object)
-{
-	$result = '<a href="javascript:alert(\'test\')">object</a>';
-	$result .= dd_array((array)$object);
-	return $result;
-}
-
-function dd_var($var)
-{
-	if($var === null)
-		return '<span style="color:#800; font-family:Monospace; font-weight:bolder;">null</span>';
-
-	if(is_bool($var))
-		return '<span style="color:#800; font-family:Monospace; font-weight:bolder;">'.($var ? 'true' : 'false').'</span>';
-
-	if(is_string($var))
-		return '<span style="color:#050; font-family:Monospace;">'.var_export($var, true).'</span>';
-
-	if(is_int($var))
-		return '<span style="color:#008; font-family:Monospace; font-weight:bolder;">'.var_export($var, true).'</span>';
-
-	if(is_array($var))
-		return dd_array($var);
-
-	if(is_object($var))
-		return dd_object($var);
-
-	return '???';
-}
-
 function dd_trace($skip = 0, $trace = null)
 {
 	if($trace === null)
@@ -85,14 +39,18 @@ function dd_trace($skip = 0, $trace = null)
 			$f = '<span style="color:#f00;">*</span>';
 		}*/
 
+		$cls = isset($t['class']) ? $t['class'] : '';
+		$obj = isset($t['object']) ? dd_var($t['object']) : '';
+		$type = isset($t['type']) ? dd_var($t['type']) : '';
+		
 		echo '<tr style="background-color:#ffa;">';
 		echo '<td style="font-family:Monospace; font-size:smaller;">'.($cnt+$skip).'</td>';
 		echo '<td style="font-family:Monospace;">'.$f.'</td>';
 		echo '<td style="font-family:Monospace;">'.$t['line'].'</td>';
 		echo '<td style="font-family:Monospace;">'.$t['file'].'</td>';
-		echo '<td style="font-family:Monospace;">'.@$t['class'].'</td>';
-		echo '<td>'.@dd_var($t['object']).'</td>';
-		echo '<td>'.@dd_var($t['type']).'</td>';
+		echo '<td style="font-family:Monospace;">'.$cls.'</td>';
+		echo '<td>'.$obj.'</td>';
+		echo '<td>'.$type.'</td>';
 		echo '<td style="font-family:Monospace;">('.dd_array_vals($t['args']).')</td>';
 		echo '</tr>';
 	}
@@ -100,25 +58,34 @@ function dd_trace($skip = 0, $trace = null)
 }
 
 /**
- * Debug Dump, die after dump
+ * Debug Dump
  */
 function dd()
 {
-	$trace = debug_backtrace();
-	dd_trace(0, $trace);
+	$d = Debug::getInstance();
+	
+//	$trace = debug_backtrace();
+//	dd_trace(0, $trace);
 
+	$result = '';
+	
 	$args = func_get_args();
-	if(count($args) == 0)
-		@$args = $trace[1]['args'] ?: array();
-	if(count($args) != 0)
+	if(empty($args))
 	{
-		foreach($args as $k=>$v)
-		{
-			echo "<h1>$k</h1>";
-			highlight_string("<?php args[$k] =\n".var_export($v, true));
-		}
+		$btrc = debug_backtrace();
+		if(!isset($btrc[1]))
+			throw new Exception('dd() called from root scope without arguments');
+		$args = $btrc[1]['args'];
+		$result = '<span style="font-family:Monospace;">function '. $btrc[1]['function'].'('. $d->dump_array_comma($args) .');</span>';
 	}
-	die;
+	else
+	{
+		$result = '<span style="font-family:Monospace;">dd('. $btrc[1]['function'].'('. $d->dump_array_comma($args) .')</span>';		
+	}
+
+	echo $result;
+	
+	exit;
 }
 
 /**

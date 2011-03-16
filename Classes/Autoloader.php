@@ -9,7 +9,7 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once('../Patterns/Singleton.php');
+require_once __DIR__.'/../Patterns/Singleton.php';
 
 // specific exception
 class AutoloaderException extends PhpSkeletException { }
