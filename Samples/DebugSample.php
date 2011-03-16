@@ -9,9 +9,10 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once __DIR__.'/../PhpSkelet.php';
+require_once __DIR__.'/../Classes/Debug.php';
 
 $d = Debug::getInstance();
+$d->registerErrorHandlers();
 
 $val = true;
 echo '<div>true: '.$d->dump($val).'</div>';
