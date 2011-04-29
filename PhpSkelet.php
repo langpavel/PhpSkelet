@@ -34,16 +34,18 @@ require_once __DIR__.'/Classes/Debug.php';
 // error handlers - set_error_handler and set_exception_handler
 Debug::getInstance()->registerErrorHandlers();
 
-if(PHPSKELET_AUTOLOADER_ENABLED)
+if(defined('PHPSKELET_AUTOLOADER_ENABLED') && PHPSKELET_AUTOLOADER_ENABLED)
 {
-	if(is_file('generated_code/autoloader.php'))
+	if(is_file(__DIR__.'/generated_code/autoloader.php'))
 	{
 		// generated autoloader
 		require_once  __DIR__.'/generated_code/autoloader.php';
 	}
 	else
 	{
-		// should this be here? I thing no, but at this moment I leave this here
-		require_once  __DIR__.'/Wizards/FirstRun.php';
+		// TODO: handle autoloader/instalation error
+		echo '<p>Autoloader enabled but no autoloader file generated</p>';
+		require_once __DIR__.'/index.php';
+		exit;
 	}
 }

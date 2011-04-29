@@ -10,6 +10,8 @@
 
 function dd_trace($skip = 0, $trace = null)
 {
+	$d = Debug::getInstance();
+	
 	if($trace === null)
 		$trace = debug_backtrace();
 
@@ -40,8 +42,8 @@ function dd_trace($skip = 0, $trace = null)
 		}*/
 
 		$cls = isset($t['class']) ? $t['class'] : '';
-		$obj = isset($t['object']) ? dd_var($t['object']) : '';
-		$type = isset($t['type']) ? dd_var($t['type']) : '';
+		$obj = isset($t['object']) ? $d->dump($t['object']) : '';
+		$type = isset($t['type']) ? $d->dump($t['type']) : '';
 		
 		echo '<tr style="background-color:#ffa;">';
 		echo '<td style="font-family:Monospace; font-size:smaller;">'.($cnt+$skip).'</td>';
@@ -51,7 +53,7 @@ function dd_trace($skip = 0, $trace = null)
 		echo '<td style="font-family:Monospace;">'.$cls.'</td>';
 		echo '<td>'.$obj.'</td>';
 		echo '<td>'.$type.'</td>';
-		echo '<td style="font-family:Monospace;">('.dd_array_vals($t['args']).')</td>';
+		echo '<td style="font-family:Monospace;">('.$d->dump_array_comma($t['args']).')</td>';
 		echo '</tr>';
 	}
 	echo '</tr></tbody></table>';
@@ -63,27 +65,29 @@ function dd_trace($skip = 0, $trace = null)
 function dd()
 {
 	$d = Debug::getInstance();
-	
-//	$trace = debug_backtrace();
-//	dd_trace(0, $trace);
 
 	$result = '';
 	
 	$args = func_get_args();
+	$btrc = debug_backtrace();
 	if(empty($args))
 	{
-		$btrc = debug_backtrace();
 		if(!isset($btrc[1]))
-			throw new Exception('dd() called from root scope without arguments');
-		$args = $btrc[1]['args'];
-		$result = '<span style="font-family:Monospace;">function '. $btrc[1]['function'].'('. $d->dump_array_comma($args) .');</span>';
+			$result = '<span style="font-family:Monospace;">function dd();</span>';
+		else 
+		{
+			$args = $btrc[1]['args'];
+			$result = '<span style="font-family:Monospace;">function '. $btrc[1]['function'].'('. $d->dump_array_comma($args) .');</span>';
+		}
 	}
 	else
 	{
-		$result = '<span style="font-family:Monospace;">dd('. $btrc[1]['function'].'('. $d->dump_array_comma($args) .')</span>';		
+		$result = '<span style="font-family:Monospace;">dd('. $d->dump_array_comma($args) .')</span>';		
 	}
 
 	echo $result;
+	
+	dd_trace(0, $btrc);
 	
 	exit;
 }

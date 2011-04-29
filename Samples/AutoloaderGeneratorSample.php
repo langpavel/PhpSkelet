@@ -22,10 +22,22 @@ echo '<?xml version="1.0" encoding="utf-8" ?>';
 require_once __DIR__.'/../Classes/Reflection/AutoloaderGenerator.php';
 
 $generator = new AutoloaderGenerator();
-$generator->addPath('..', true);
+
+if(isset($GLOBALS['generator_paths']))
+{
+	foreach($GLOBALS['generator_paths'] as $value) 
+	{
+		if(is_array($value))
+			$generator->addPath($value[0], $value[1]);
+		else
+			$generator->addPath($value, true);
+	}
+}
+else 
+	$generator->addPath(__DIR__.'/..', true);
 $generator->process();
 highlight_string($generator);
-$filename = '../generated_code/autoloader.php';
+$filename = realpath(__DIR__.'/../generated_code/').'/autoloader.php';
 $result = $generator->writeFile($filename);
 if($result)
 {

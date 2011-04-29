@@ -95,13 +95,13 @@ function __autoload($class)
 	{
 		try
 		{
-			$diriter = new DirectoryIterator($path);
+			$diriter = new DirectoryIterator(realpath($path));
 			foreach($diriter as $entry)
 			{
 				// filter parent dirs and unix hidden files and dirs
 				if($entry->isDot() || substr($entry->getBaseName(),0,1) === '.')
 					continue;
-				$source_filename = $entry->getPathName();
+				$source_filename = realpath($entry->getPathName());
 				if($entry->isDir())
 				{
 					if(!$recursive)
