@@ -36,3 +36,9 @@ class PhpSkeletException extends RuntimeException { }
  * @author langpavel
  */
 class ApplicationException extends PhpSkeletException { }
+
+/**
+ * Base class for all application invalid operations 
+ * @author langpavel
+ */
+class InvalidOperationException extends PhpSkeletException { }

@@ -1,5 +1,6 @@
 <?php
 
+/*
 class URI extends SafeObject
 {
 	private $path;
@@ -16,5 +17,5 @@ class URI extends SafeObject
 		$this->path = $path;
 	}
 	
-	
 }
+*/

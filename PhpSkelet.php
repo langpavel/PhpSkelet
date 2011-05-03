@@ -34,6 +34,8 @@ require_once __DIR__.'/Classes/Debug.php';
 // error handlers - set_error_handler and set_exception_handler
 Debug::getInstance()->registerErrorHandlers();
 
+require_once __DIR__.'/functions.php';
+
 if(defined('PHPSKELET_AUTOLOADER_ENABLED') && PHPSKELET_AUTOLOADER_ENABLED)
 {
 	if(is_file(__DIR__.'/generated_code/autoloader.php'))

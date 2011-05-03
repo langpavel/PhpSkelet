@@ -41,6 +41,10 @@ class Debug //extends Singleton
 		return (self::$instance !== null) ? self::$instance : (self::$instance = new Debug()); 
 	}
 	
+	public static $max_recurse_depth = 8;
+	
+	private static $recurse_depth = 0;
+	
 	/**
 	 * Dump variable into formatted XHTML string
 	 * @param mixed $var
@@ -49,27 +53,33 @@ class Debug //extends Singleton
 	public function dump(&$var, $magic_helper = false)
 	{
 		if($var === null)
-			return $this->dump_null();
-
-		if(is_bool($var))
-			return $this->dump_bool($var);
-
-		if(is_string($var))
-			return $this->dump_string($var);
-
-		if(is_int($var))
-			return $this->dump_int($var);
-
-		if(is_float($var))
-			return $this->dump_float($var);
-
-		if(is_array($var))
-			return $this->dump_array($var, $magic_helper);
-
-		if(is_object($var))
-			return $this->dump_object($var);
-
-		return '???';
+			$result = $this->dump_null();
+		else if(is_bool($var))
+			$result = $this->dump_bool($var);
+		else if(is_string($var))
+			$result = $this->dump_string($var);
+		else if(is_int($var))
+			$result = $this->dump_int($var);
+		else if(is_float($var))
+			$result = $this->dump_float($var);
+		else if(is_array($var) || is_object($var))
+		{
+			if(self::$recurse_depth >= self::$max_recurse_depth)
+				return 'Recursion depth limit reached';
+			
+			self::$recurse_depth++;
+			
+			if(is_array($var))
+				$result = $this->dump_array($var, $magic_helper);
+			else 
+				$result = $this->dump_object($var);
+				
+			self::$recurse_depth--;
+		}
+		else 
+			$result = '???';
+		
+		return $result;
 	}
 	
 	/**
