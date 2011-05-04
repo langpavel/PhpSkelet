@@ -28,7 +28,7 @@ class Password extends SafeObject
 	/**
 	 * Load encrypted password from string.
 	 * @param string $hashed_password in format "{$salt}:{$hash}"
-	 * @param unknown_type $hash_method
+	 * @param string $hash_method hash method - possible values are from hash_algos() call result
 	 * @return Password
 	 */
 	public static function load($enc_password, $hash_method = null)
@@ -63,22 +63,26 @@ class Password extends SafeObject
 	}
 
 	/**
-	 * Create salted hash of plain-text password and destroy referenced plain-text.  
-	 * @param string $password reference to unencrypted password
+	 * Create salted hash of plain-text password  
+	 * @param string $password unencrypted password
 	 */
-	public function getHash(&$password)
+	public function getHash($password)
 	{
-		$result = hash($this->hash_method, $this->salt.$password);
-		$password = '';
-		unset($password);
-		return $result;
+		return hash($this->hash_method, $this->salt.$password);
 	}
 	
+	/**
+	 * Verify that password match
+	 * @param unknown_type $password
+	 */
 	public function verify($password)
 	{
 		return $this->hash === $this->getHash($password);
 	} 
 
+	/**
+	 * output password hash with salt 
+	 */
 	public function __toString()
 	{
 		return "{$this->salt}:{$this->hash}";

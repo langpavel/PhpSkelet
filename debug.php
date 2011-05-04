@@ -53,7 +53,15 @@ function dd_trace($skip = 0, $trace = null)
 		echo '<td style="font-family:Monospace;">'.$cls.'</td>';
 		echo '<td>'.$obj.'</td>';
 		echo '<td>'.$type.'</td>';
-		echo '<td style="font-family:Monospace;">('.$d->dump_array_comma($t['args']).')</td>';
+		if(isset($t['args']))
+		{
+			if(is_array($t['args']))
+				echo '<td style="font-family:Monospace;">('.$d->dump_array_comma($t['args']).')</td>';
+			else 
+				echo '<td style="font-family:Monospace;">('.$d->dump($t['args']).')</td>';
+		}
+		else 
+			echo '<td style="font-family:Monospace;"> </td>';
 		echo '</tr>';
 	}
 	echo '</tr></tbody></table>';

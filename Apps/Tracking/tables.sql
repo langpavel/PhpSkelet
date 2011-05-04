@@ -1,5 +1,3 @@
-DROP TABLE track_user_agent;
-
 /* HTTP_USER_AGENT list */
 CREATE TABLE track_user_agent
 (
