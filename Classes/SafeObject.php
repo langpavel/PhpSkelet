@@ -46,14 +46,14 @@ abstract class SafeObject extends Object
 	}
 
     /**
-	 * Magic method __get is forbidden
+	 * Magic method __get, allow cal to method "get$name" if exists for template rendering
      * @param string $name
 	 * @throws InvalidPropertyAccessException
 	 * @see SafeObjectMixin::objectGet
      */
 	public function __get($name)
 	{
-		/*return*/ SafeObjectMixin::objectGet($this, $name);
+		return SafeObjectMixin::objectGet($this, $name);
 	}
 
 }

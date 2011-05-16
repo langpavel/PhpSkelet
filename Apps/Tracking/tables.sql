@@ -1,3 +1,16 @@
+/* visitor list */
+CREATE TABLE track_uri
+(
+    id bigint not null primary key auto_increment,
+/*  schema varchar(5) not null comment 'http, https, ...', */
+    uri varchar(255) not null comment '',
+    track_params bool default false comment 'if GET method parameter tracking is enabled',
+
+    cnt bigint not null,
+
+    index(uri)
+);
+
 /* HTTP_USER_AGENT list */
 CREATE TABLE track_user_agent
 (
@@ -16,19 +29,6 @@ CREATE TABLE track_visitor
     ua_id int not null, 
     session_id varchar(40) comment 'session id from PHP session mechanism',
     user_id bigint comment 'only if user is logged in'
-);
-
-/* visitor list */
-CREATE TABLE track_uri
-(
-    id bigint not null primary key auto_increment,
-/*  schema varchar(5) not null comment 'http, https, ...', */
-    uri varchar(255) not null comment '',
-    track_params bool default false comment 'if GET method parameter tracking is enabled',
-
-    cnt bigint not null,
-
-    index(uri)
 );
 
 /* this table is filled for every request */

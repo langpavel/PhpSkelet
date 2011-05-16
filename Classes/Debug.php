@@ -106,7 +106,7 @@ class Debug //extends Singleton
 	protected function writeSpan($content, $color='000', $styles='')
 	{
 		return '<span style="font-family:Monospace;color:#'.$color.';'.$styles.'">'
-			.str_replace(array("\n", ' '), array('<br/>', '&nbsp;'), htmlspecialchars($content))
+			.str_replace(array("\n", ' '), array('<br/>', '&#160;'), htmlspecialchars($content))
 			.'</span>';
 	}
 
@@ -151,7 +151,7 @@ class Debug //extends Singleton
 
 		array_push($this->recurse_detection, $var);
 
-		$result = '<table style="border:1px black solid; margin-left:10pt; padding-left:3pt; valign:top;">';
+		$result = '<table style="border:1px black solid; margin:0 0 3pt 10pt; padding:0 0 0 3pt; valign:top;">';
 
 		foreach($var as $k=>$v)
 		{
@@ -174,7 +174,7 @@ class Debug //extends Singleton
 		$cls = get_class($var);
 		$result = array();
 		$result['___protected'] = array();
-		$privatestr = '___private&nbsp;'.$cls.' ';
+		$privatestr = '___private&#160;'.$cls.' ';
 		$result[$privatestr] = array();
 		foreach($array as $k=>&$v)
 		{
@@ -186,7 +186,7 @@ class Debug //extends Singleton
 			else if ($cls === $expl[1])
 				$result[$privatestr]['___'.$expl[2]]=&$v;
 			else
-				$result['___private&nbsp;'.$expl[1]]['___'.$expl[2]]=&$v;
+				$result['___private&#160;'.$expl[1]]['___'.$expl[2]]=&$v;
 		}
 		ksort($array);
 		return $this->dump_array_table($result, true);

@@ -48,8 +48,8 @@ function dd_trace($skip = 0, $trace = null)
 		echo '<tr style="background-color:#ffa;">';
 		echo '<td style="font-family:Monospace; font-size:smaller;">'.($cnt+$skip).'</td>';
 		echo '<td style="font-family:Monospace;">'.$f.'</td>';
-		echo '<td style="font-family:Monospace;">'.$t['line'].'</td>';
-		echo '<td style="font-family:Monospace;">'.$t['file'].'</td>';
+		echo '<td style="font-family:Monospace;">'.(isset($t['line']) ? $t['line'] : '').'</td>';
+		echo '<td style="font-family:Monospace;">'.(isset($t['file']) ? $t['file'] : '').'</td>';
 		echo '<td style="font-family:Monospace;">'.$cls.'</td>';
 		echo '<td>'.$obj.'</td>';
 		echo '<td>'.$type.'</td>';

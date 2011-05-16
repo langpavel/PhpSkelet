@@ -38,12 +38,16 @@ final class SafeObjectMixin
 	}
 
     /**
-	 * For magic method __get - forbidden and throws InvalidPropertyAccessException
+	 * For magic method __get, call method "get$name" if exists 
      * @param string $name
 	 * @throws InvalidPropertyAccessException
      */
 	public static function objectGet($instance, $name)
 	{
+		// This is here because of template rendering
+		$methodname = 'get'.$name;
+		if(method_exists($instance, $methodname))
+			return $instance->$methodname();
 		throw new InvalidPropertyAccessException('Invalid property access (get '.get_class($instance).'::'.$name.')');
 	}
 

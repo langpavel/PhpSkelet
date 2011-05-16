@@ -118,11 +118,6 @@ abstract class Singleton extends SafeObject
 		return $instance;
 	}
 
-	public function getClassDescription()
-	{
-		return 'singleton '.parent::getClassDescription();
-	}
-
 	/**
 	 * Get names of all created singleton instances
 	 * Enter description here ...

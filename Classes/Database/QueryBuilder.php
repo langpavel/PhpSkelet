@@ -2,9 +2,9 @@
 
 /**
  * DO NOT USE THIS CLASS DIRECTLY - contribute and write bettrer api instead ;-)
- * This class is for internal use by IMapping implementors - way 
- * for some SQL specific abstraction layer
  * Quick and dirty query builder.
+ * This class is for internal use by IMapping implementors 
+ * way for some SQL syntax specific abstraction layer
  * TODO: Create better API
  * @author langpavel
  */

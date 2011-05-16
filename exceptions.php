@@ -42,3 +42,9 @@ class ApplicationException extends PhpSkeletException { }
  * @author langpavel
  */
 class InvalidOperationException extends PhpSkeletException { }
+
+/**
+ * Thrown by SafeObject
+ * @author langpavel
+ */
+class InvalidPropertyAccessException extends PhpSkeletException { }

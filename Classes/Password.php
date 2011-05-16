@@ -5,7 +5,7 @@
  * In default generates password hash 70 characters long, hash function is SHA256 with 5char salt prefix giving 62^5 posibilities
  * @author langpavel
  */
-class Password extends SafeObject
+final class Password extends SafeObject
 {
 	public static $default_hash_method = 'sha256';
 	public static $default_salt_width = 5;
@@ -22,6 +22,10 @@ class Password extends SafeObject
 	 */
 	public static function create($password, $hash_method = null, $salt = null)
 	{
+		if($password instanceof Password)
+			return clone $password;
+		if(!is_string($password))
+			throw new InvalidArgumentException('Password is not a string');
 		return new Password($password, true, $hash_method, $salt);
 	}
 
@@ -50,7 +54,7 @@ class Password extends SafeObject
 		$this->hash_method = ($hash_method === null) ? self::$default_hash_method : $hash_method;
 		if($create)
 		{
-			$this->salt = ($salt === null) ? str_random(self::$default_salt_width) : $salt;
+			$this->salt = ($salt === null) ? self::createSalt() : $salt;
 			$this->hash = $this->getHash($password);
 		}
 		else 
@@ -62,13 +66,28 @@ class Password extends SafeObject
 		}
 	}
 
+	public static function createSalt($len = null)
+	{
+		return str_random(($len === null) ? self::$default_salt_width : $len);
+	}
+	
 	/**
-	 * Create salted hash of plain-text password  
+	 * Read current hash or create salted hash of plain-text password  
 	 * @param string $password unencrypted password
 	 */
-	public function getHash($password)
+	public function getHash($password=null)
 	{
+		if($password === null)
+			return $this->hash;
 		return hash($this->hash_method, $this->salt.$password);
+	}
+
+	/**
+	 * Read current salt
+	 */
+	public function getSalt()
+	{
+		return $this->salt;
 	}
 	
 	/**
@@ -77,6 +96,8 @@ class Password extends SafeObject
 	 */
 	public function verify($password)
 	{
+		if($password === null || !is_string($password))
+			return false;
 		return $this->hash === $this->getHash($password);
 	} 
 

@@ -47,12 +47,23 @@ class SitemapEntry extends SafeObject
 		echo "\t<url>\n";
 		echo "\t\t<loc>".htmlentities($this->loc)."</loc>\n";
 		if($this->lastmod != null)
-			echo "\t\t<lastmod>$this->lastmod</lastmod>\n";
+		{
+			$lastmod = $this->lastmod;
+			if(is_int($lastmod))
+				$lastmod = date('c', $lastmod);
+			echo "\t\t<lastmod>$lastmod</lastmod>\n";
+		}
 		if($this->changefreq != null)
 			echo "\t\t<changefreq>$this->changefreq</changefreq>\n";
 		if($this->priority != null)
 			echo "\t\t<priority>$this->priority</priority>\n";
 		echo "\t</url>\n";
+	}
+	
+	public function merge(SitemapEntry $loc)
+	{
+		if($this->lastmod === null || $this->lastmod < $loc->lastmod)
+			$this->lastmod = $loc->lastmod; 
 	}
 	
 	public static function normalize_loc($loc)
@@ -77,7 +88,7 @@ class SitemapEntry extends SafeObject
 		if(isset($url['fragment']))
 			$url['path'] .= '#'.$url['fragment'];			
 			
-		return $url['scheme'].'://'.$url['host'].$url['path'];
+		return $url['scheme'].'://'.$url['host'].(isset($url['path']) ? $url['path'] : '/');
 	}
 	
 }
@@ -85,6 +96,14 @@ class SitemapEntry extends SafeObject
 class Sitemap extends SafeObject implements IteratorAggregate
 {
 	protected $entries = array();
+	protected $removals = array();
+	
+	public function __construct()
+	{
+		parent::__construct();
+		$this->remove('/robots.txt');
+		$this->remove('/sitemap.xml');
+	}
 	
 	/**
 	 * Add sitemap entry (do NOT rewrite)
@@ -93,13 +112,28 @@ class Sitemap extends SafeObject implements IteratorAggregate
 	 * @param string $changefreq one of always, hourly, daily, weekly, monthly, yearly, never
 	 * @param string $lastmod Date in format YYYY-MM-DD
 	 */
-	public function add($loc, $priority=null, $changefreq=null, $lastmod=null)
+	public function add($loc, $priority=null, $changefreq=null, $lastmod=null, $force=false)
 	{
 		if(!$loc instanceof SitemapEntry)
 			$loc = new SitemapEntry($loc, $priority, $changefreq, $lastmod);
-
+		
+		if(!$force && isset($this->removals[$loc->loc]) && $this->removals[$loc->loc])
+			return false;
+			
 		if(!isset($this->entries[$loc->loc]))
 			$this->entries[$loc->loc] = $loc;
+		else 
+			$this->entries[$loc->loc]->merge($loc);
+		
+		return true;
+	}
+	
+	public function remove($loc)
+	{
+		$loc = SitemapEntry::normalize_loc($loc);;
+		$this->removals[$loc] = true;
+		if(isset($this->entries[$loc]))
+			unset($this->entries[$loc]);				
 	}
 	
 	public function getIterator()
@@ -109,8 +143,15 @@ class Sitemap extends SafeObject implements IteratorAggregate
 	
 	public function write()
 	{
-		echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-		echo "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
+		if(!headers_sent())
+			header('Content-Type:application/xml; charset=UTF-8');
+		
+		echo '<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/style/sitemap.xsl"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+	xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+';
 		foreach ($this as $entry)
 			$entry->write();
 		echo '</urlset>';
@@ -124,24 +165,27 @@ class Sitemap extends SafeObject implements IteratorAggregate
 		$dirs = array();		
 		foreach($dir as $d)
 		{
+			$filename = $d->getFilename();
+			if(substr($filename, 0, 2) == '__' && $filename != '__index.php' && $filename != '__index.tpl')
+				continue;
+				
 			if($d->isfile())
 			{
-				$ext = substr($d, -4);
+				$ext = substr($filename, -4);
 				if($ext == '.tpl' || $ext == '.php')
 				{
 					$file = substr($d, 0, -4);
-					if($file != 'robots.txt' && $file != 'sitemap.xml')
-					{
-						if($file === 'index')
-							$this->add($base_url);
-						else
-							$this->add($base_url.$file);
-					}
+					if($file === '__index')
+						$this->add(rtrim($base_url, '/'), null, null, $d->getMTime());
+					else
+						$this->add($base_url.$file, null, null, $d->getMTime());
 				}
 			}
-			else if($recursive && $d->isdir() && !$d->isdot() && $d != 'special' && $d != 'components')
+			else if($recursive && $d->isdir() && !$d->isdot())
 			{
-				$this->traverse_dir($base_url.$d.'/', $path.$d);
+				$loc = $base_url.$d.'/';
+				if(!isset($this->removals[$loc]) || !$this->removals[$loc])
+					$this->traverse_dir($loc, $path.$d);
 			}
 		}
 		

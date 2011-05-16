@@ -46,8 +46,6 @@ if(defined('PHPSKELET_AUTOLOADER_ENABLED') && PHPSKELET_AUTOLOADER_ENABLED)
 	else
 	{
 		// TODO: handle autoloader/instalation error
-		echo '<p>Autoloader enabled but no autoloader file generated</p>';
-		require_once __DIR__.'/index.php';
-		exit;
+		echo '<p>NOTE: Autoloader enabled but no autoloader file generated</p>';
 	}
 }

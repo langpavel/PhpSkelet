@@ -18,7 +18,7 @@ class Object
 	/**
 	 * Empty constructor
 	 */
-	public function __construct() { }
+	protected function __construct() { }
 
 	/**
 	 * Enpty destructor
@@ -31,5 +31,13 @@ class Object
 	public function __toString()
 	{
 		return '(object '.get_class($this).')';
+	}
+	
+	/**
+	 * Get class name of current instance 
+	 */
+	public function getClassName()
+	{
+		return get_class($this);
 	}
 }

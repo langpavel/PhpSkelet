@@ -5,6 +5,15 @@ abstract class EntityManager extends PrototypeManager
 	protected $entityInstances = array();
 	
 	/**
+	 * Get EntityManager instance
+	 * @return EntityManager
+	 */
+	public static function getInstance()
+	{
+		return parent::getInstance();
+	}
+	
+	/**
 	 * Register entity ID and assotiate it with class name or prototype entity instance.
 	 * @param string $entityID
 	 * @param mixed[optional] $entityClass String means class name (if ommited same as $entityID), instance is prototype

@@ -1,7 +1,15 @@
 <?php
 
-function redirect($target, $temporaly = false)
+/**
+ * Write permanent or temporaly redirect header and end proccesing.
+ * Enter description here ...
+ * @param string $target url
+ * @param bool[optional] $temporaly if redirect is temporaly
+ */
+function redirect($target = null, $temporaly = false)
 {
+	if($target === null)
+		$target = get_POST_GET('redirect', get_POST_GET('return_url', '..'));
 	header('Location: '.$target, true, $temporaly ? 307 : 301);
 	exit();
 }
@@ -20,9 +28,80 @@ function str_random($length = 8, $valid_chars = '0123456789qwertyuiopasdfghjklzx
 	return $result;
 }
 
+/**
+ * Check if $text start with $required
+ * @param unknown_type $required
+ * @param unknown_type $text
+ * @return bool 
+ */
+function str_start_with($required, $text)
+{
+	return substr($text, 0, strlen($required)) === $required;	
+}
+
+/**
+ * Generate unique html id
+ */
+function get_document_unique_id()
+{
+	static $counter = 0;
+	return sprintf('__%x', $counter++);
+}
+
 function str_remove_dia($text)
 {
 	return iconv("utf-8", "ascii//TRANSLIT", $text);
+}
+
+function get_POST($name, $default=null)
+{
+	return isset($_POST[$name]) ? $_POST[$name] : $default; 
+}
+
+function get_GET($name, $default=null)
+{
+	return isset($_GET[$name]) ? $_GET[$name] : $default; 
+}
+
+function get_POST_GET($name, $default=null)
+{
+	return isset($_POST[$name]) ? 
+		$_POST[$name] : 
+		(isset($_GET[$name]) ? $_GET[$name] : $default); 
+}
+
+function file_backup($file, $throw=true, $rename=false, $prefix='', $suffix='.bak')
+{
+	if(!$file instanceof SplFileInfo)
+		$file = new SplFileInfo($file);
+
+	if($file->isDir())
+		if($throw) throw new InvalidOperationException('Cannot backup directory');
+		else return false;
+		
+	if($file->isLink())
+		if($throw) throw new InvalidOperationException('Cannot backup file, file is link');
+		else return false;
+		
+	$path = $file->getPath().'/';
+	$filename = $file->getFilename();
+	
+	$i = 0;
+	do
+	{
+		$newfilename = $path.$prefix.$filename.sprintf('.%04d',$i).$suffix;
+		$i++;
+	}
+	while(is_file($newfilename));
+	
+	$result = $rename ? 
+		rename($file->getPathname(), $newfilename) :
+		copy($file->getPathname(), $newfilename);
+	
+	if(!$result)
+		if($throw) throw new InvalidOperationException('Cannot backup file "'.$filename.'" to "'.$newfilename.'"');
+	
+	return $result;
 }
 
 /*

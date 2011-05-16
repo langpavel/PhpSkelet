@@ -14,7 +14,7 @@ require_once __DIR__.'/../Patterns/Singleton.php';
 // specific exception
 class AutoloaderException extends PhpSkeletException { }
 
-class Autoloader extends Singleton
+class PhpSkeletAutoloader extends Singleton
 {
 	protected $classes = array();
 	
@@ -56,21 +56,25 @@ class Autoloader extends Singleton
 	 */
 	public function loadClass($classname)
 	{
-		if(!isset($this->classes[$classname]))
+		$filename = $this->getClassFilePathname($classname);
+		if($filename === null)
 			throw new AutoloaderException("Class '$classname' is not registered in autoloader");
-		
-		$filename = $this->classes[$classname];
+			
 		if(!is_file($filename))
 			throw new AutoloaderException("Class '$classname' is registered but file '$filename' does not exists!");
 			
 		require_once $filename;
 	}
-	
+
 	/**
-	 * returns magic __FILE__ of autoloader class
+	 * Get path of source file with class definition
+	 * @param string $classname
+	 * @return string pathname of source file with class or NULL if class not found
 	 */
-	public function getSourceBaseFile()
+	public function getClassFilePathname($classname)
 	{
-		return __FILE__;		
+		if(!isset($this->classes[$classname]))
+			return null;
+		return $this->classes[$classname];
 	}
 }
