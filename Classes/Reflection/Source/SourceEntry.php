@@ -15,6 +15,8 @@ class SourceEntry extends SafeObject
 	public $isWritable;
 	public $canDelete;
 	public $type;
+	public $modifyTime;
+	public $errors = array();
 	
 	protected function __construct(SplFileInfo $entry)
 	{
@@ -22,11 +24,30 @@ class SourceEntry extends SafeObject
 		//if(!$entry instanceof SplFileInfo)
 		//	$entry = new SplFileInfo($entry);
 
-		$this->filename = $entry->getFilename();
+		$this->refresh($entry);
+	}
+	
+	protected function refresh($entry = null)
+	{
+		if($entry === null)
+			$entry = new SplFileInfo($this->pathname);
+		if(!$entry instanceof SplFileInfo)
+			$entry = new SplFileInfo($entry);
+
 		$this->pathname = $entry->getPathname(); 
+		$this->filename = $entry->getFilename();
 		$this->realpath = $entry->getRealPath();
 		$this->isReadable = $entry->isReadable();
 		$this->isWritable = $entry->isWritable();
+		try {
+			$this->modifyTime = $entry->getMTime();
+		}
+		catch (Exception $err)
+		{
+			$this->modifyTime = 'ERROR';
+			$this->errors[] = $err;
+		}
+		
 		try {
 			$this->type = $entry->getType();
 			if($this->type == 'link')
@@ -34,7 +55,8 @@ class SourceEntry extends SafeObject
 		}
 		catch (Exception $err)
 		{
-			$this->type = 'err';
+			$this->type = 'ERROR';
+			$this->errors[] = $err;
 		}
 		$this->canDelete = $this->isWritable;
 		$this->isHidden = $this->filename[0] == '.';

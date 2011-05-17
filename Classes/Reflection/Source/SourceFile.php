@@ -6,6 +6,7 @@ class SourceFile extends SourceEntry
 {
 	public $extension;
 	public $subtype;
+	public $mimeType;
 	
 	public function __construct($entry, $extension=null, $subtype=null)
 	{
@@ -16,11 +17,26 @@ class SourceFile extends SourceEntry
 		if($subtype === null)
 			$subtype = get_class($this);
 		$this->subtype = $subtype;
+
+		try {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+	    	$this->mimeType = finfo_file($finfo, $this->pathname);
+			finfo_close($finfo);
+		}
+		catch (Exception $err)
+		{
+			$this->mimeType = 'application/octet-stream';
+		}
 	}
 	
 	public function getContent()
 	{
 		return file_get_contents($this->pathname);
+	}
+	
+	public function getFileHash($algo = 'sha256')
+	{
+		return hash_file($algo, $this->pathname);
 	}
 	
 	public function getHighlightedSource()
@@ -43,8 +59,3 @@ class SourceFile extends SourceEntry
 		return unlink($this->pathname);
 	}
 }
-
-class TplSourceFile extends SourceFile
-{
-}
-
