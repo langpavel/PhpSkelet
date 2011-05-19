@@ -26,6 +26,12 @@
 // In this file should be only exceptions with global meaning 
 
 /**
+ * For 'not implemented yet' code
+ * @author langpavel
+ */
+final class NotImplementedException extends Exception { }
+
+/**
  * Base class for all PhpSkelet Framework exceptions
  * @author langpavel
  */

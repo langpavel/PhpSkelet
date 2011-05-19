@@ -125,10 +125,10 @@ ERROR: '.$err.'
 		}
 	}
 
-	public function processFile($file)
+	public function processFile($pathname)
 	{
 		gc_collect_cycles();
-		$phpreader = new PhpSourceFile($file);
+		$phpreader = new PhpSourceFile($pathname);
 		$classes = $phpreader->findDefinedClasses();
 		foreach($classes as $classinfo)
 		{
@@ -138,20 +138,22 @@ ERROR: '.$err.'
 				$v =& $this->classes_paths[$classname];
 				$this->writeLn('// WARNING - class name collision');
 				if(is_array($v))
-					$v[] = $file;
+					$v[] = $pathname;
 				else
-					$v = array($v, $file);
+					$v = array($v, $pathname);
 			}
 			else
-				$this->classes_paths[$classname] = $file;
+				$this->classes_paths[$classname] = $pathname;
 
 			$modif = ($classinfo['abstract'] ? 'abstract ' : ($classinfo['final'] ? 'final ' : ''));
 			//ddd($modif, $classinfo);
 			$extends = (count($classinfo['extends'])) ? ' extends '.implode(', ', $classinfo['extends']) : '';
 			$implements = (count($classinfo['implements'])) ? ' implements '.implode(', ', $classinfo['extends']) : '';
 
+			$classinfo['pathname'] = $pathname;
+			
 			$comment = '// '.$modif.'class '.$classname.$extends.$implements.';';
-			$this->writeLn("PhpSkeletAutoloader::register(".var_export($classname, true).", ".var_export($file, true).'); '.$comment);
+			$this->writeLn("PhpSkeletAutoloader::register(".var_export($classname, true).", ".var_export($classinfo, true).'); '.$comment);
 		}
 	}
 

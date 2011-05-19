@@ -21,7 +21,7 @@ class PhpSkeletAutoloader extends Singleton
 	/**
 	 * Register class definition file for autoloader
 	 * @param string $classname Class to be registered
-	 * @param string $file Codebase file of the class
+	 * @param array $file Codebase file of the class
 	 * @param bool[optional] $override default false - set new codebase for class
 	 */	
 	public static function register($classname, $file, $override = false)
@@ -32,7 +32,7 @@ class PhpSkeletAutoloader extends Singleton
 	/**
 	 * Register class definition file for autoloader
 	 * @param string $classname Class to be registered
-	 * @param string $file Codebase file of the class
+	 * @param array $file Codebase file of the class
 	 * @param bool[optional] $override default false - set new codebase for class
 	 * @throws PhpSkeletException
 	 */
@@ -40,6 +40,9 @@ class PhpSkeletAutoloader extends Singleton
 	{
 		if($override && isset(self::$classes[$classname]))
 			throw new PhpSkeletException("Class '$classname' is alredy registered in file '".self::$classes[$classname]."'");
+
+		if(!is_array($file))
+			$file = array('pathname'=>$file);
 			
 		$this->classes[$classname] = $file;
 	}
@@ -59,7 +62,7 @@ class PhpSkeletAutoloader extends Singleton
 		$filename = $this->getClassFilePathname($classname);
 		if($filename === null)
 			throw new AutoloaderException("Class '$classname' is not registered in autoloader");
-			
+		
 		if(!is_file($filename))
 			throw new AutoloaderException("Class '$classname' is registered but file '$filename' does not exists!");
 			
@@ -75,6 +78,14 @@ class PhpSkeletAutoloader extends Singleton
 	{
 		if(!isset($this->classes[$classname]))
 			return null;
-		return $this->classes[$classname];
+		return $this->classes[$classname]['pathname'];
+	}
+	
+	/**
+	 * Get all registered classes with metadata
+	 */
+	public function getRegisteredClasses()
+	{
+		return $this->classes;
 	}
 }

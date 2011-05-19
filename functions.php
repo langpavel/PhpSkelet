@@ -70,6 +70,37 @@ function get_POST_GET($name, $default=null)
 		(isset($_GET[$name]) ? $_GET[$name] : $default); 
 }
 
+function get_SERVER($name, $default=null)
+{
+	return isset($_SERVER[$name]) ? $_SERVER[$name] : $default; 
+}
+
+function request_is_ajax()
+{
+	return ('xmlhttprequest' == strtolower(get_SERVER('HTTP_X_REQUESTED_WITH', '')))
+		|| get_GET('ajax', false)
+		|| get_GET('json', false);
+}
+
+function header_nocache()
+{
+	header('Cache-Control: no-cache, must-revalidate');
+	header('Pragma: no-cache');
+}
+
+/**
+ * Write JSON response and exit
+ */
+function response_json($data)
+{
+	while(ob_get_level() > 0)
+		ob_end_clean();
+	header_nocache();
+	header('Content-type: application/json');
+	echo json_encode($data);
+	exit;	
+}
+
 function file_backup($file, $throw=true, $rename=false, $prefix='', $suffix='.bak')
 {
 	if(!$file instanceof SplFileInfo)
