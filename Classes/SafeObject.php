@@ -16,7 +16,7 @@ require_once __DIR__.'/Object.php';
 abstract class SafeObject extends Object
 {
 
-//	implicit behavior |cs> implicitni chovani 
+//	implicit behavior 
 //	public function __isset( $name )
 //	{
 //		return isset($this->name);
@@ -46,7 +46,8 @@ abstract class SafeObject extends Object
 	}
 
     /**
-	 * Magic method __get, allow cal to method "get$name" if exists for template rendering
+	 * Magic method __get, allow cal to method "get$name" if exists.
+	 * Usefull for template rendering
      * @param string $name
 	 * @throws InvalidPropertyAccessException
 	 * @see SafeObjectMixin::objectGet

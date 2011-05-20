@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * get execution time in seconds at current point of call in seconds
+ * @return float Execution time at this point of call
+ */
+function get_execution_time()
+{
+	static $microtime_start = null;
+	if($microtime_start === null)
+	{
+		$microtime_start = microtime(true);
+		return 0.0; 
+	}	
+	return microtime(true) - $microtime_start; 
+}
+get_execution_time();
+
+/**
  * Write permanent or temporaly redirect header and end proccesing.
  * Enter description here ...
  * @param string $target url

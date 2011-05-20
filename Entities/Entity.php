@@ -20,8 +20,8 @@ abstract class Entity extends SafeObject implements ArrayAccess
 	private $internal_state = Entity::STATE_CONSTRUCTION;
 	
 	private $row;
-	
-	public function __construct($entityID, EntityManager $entity_manager)
+
+	protected function __construct($entityID, EntityManager $entity_manager)
 	{
 		parent::__construct();
 		$this->manager = $entity_manager;
@@ -30,6 +30,13 @@ abstract class Entity extends SafeObject implements ArrayAccess
 		$this->row = array(Entity::VERSION_DEFAULT=>$defaults, Entity::VERSION_OLD=>array(), Entity::VERSION_NEW=>$defaults);
 	}
 
+	public static function create()
+	{
+		$class = get_called_class();
+		$entity = new $class($class, EntityManager::getInstance());
+		return $entity;		
+	}
+	
 	/**
 	 * Get default values
 	 * @return array all column default values, keys are column names
