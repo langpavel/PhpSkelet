@@ -19,7 +19,7 @@ echo '<?xml version="1.0" encoding="utf-8" ?>';
 <h1>Autoloader generator</h1>
 <?php
 
-require_once __DIR__.'/../Classes/Reflection/AutoloaderGenerator.php';
+require_once __DIR__.'/../Reflection/AutoloaderGenerator.php';
 
 $generator = new AutoloaderGenerator();
 

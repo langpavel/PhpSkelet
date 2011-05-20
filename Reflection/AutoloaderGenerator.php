@@ -11,7 +11,7 @@
 if(!defined('PHPSKELET_AUTOLOADER_ENABLED'))
 	define('PHPSKELET_AUTOLOADER_ENABLED', false);
 
-require_once __DIR__.'/../../PhpSkelet.php';
+require_once __DIR__.'/../PhpSkelet.php';
 require_once __DIR__.'/SourceGenerator.php';
 require_once __DIR__.'/Source/PhpSourceFile.php';
 

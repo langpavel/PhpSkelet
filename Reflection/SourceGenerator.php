@@ -9,7 +9,7 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
-require_once __DIR__.'/../../PhpSkelet.php';
+require_once __DIR__.'/../PhpSkelet.php';
 
 class SourceGeneratorException extends PhpSkeletException {}
 
