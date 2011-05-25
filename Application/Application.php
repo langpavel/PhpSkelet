@@ -2,7 +2,7 @@
 
 require_once __DIR__.'/../PhpSkelet.php';
 
-final class Application extends Singleton implements ArrayAccess
+final class Application extends SafeObject implements ArrayAccess
 {
 	const APP_STATE_SICK = 0x00; // this should never happen
 	const APP_STATE_CREATED = 0x01;
@@ -16,17 +16,39 @@ final class Application extends Singleton implements ArrayAccess
 	const APP_STATE_FINISHING = 0x40;
 	const APP_STATE_FINISHED = 0x80;
 	
+	private static $instance = null;
 	private $app_state = Application::APP_STATE_SICK;
 	private $hooks = array();
 	private $variableSet;
 	protected $request_host;
 	protected $request_uri;
 
-	public function __construct()
+	/**
+	 * Get Application instance
+	 * @return Application
+	 */
+	public static function getInstance()
+	{
+		return (Application::$instance === null) ?
+			Application::$instance = new Application() :
+			Application::$instance;
+	}
+	
+	protected function __construct()
 	{
 		parent::__construct();
 		$this->variableSet = new VariableSet();
 		$this->app_state = Application::APP_STATE_CREATED;
+	}
+	
+	protected function __clone()
+	{
+		throw new InvalidOperationException('Application cannot be cloned');
+	}
+	
+	public function getRequestUri()
+	{
+		return $this->request_uri;
 	}
 	
 	/**
@@ -66,13 +88,16 @@ final class Application extends Singleton implements ArrayAccess
 	
 	protected function runHooks($method, $first_result = false)
 	{
+		if($this === null)
+			return false;
+		
 		foreach($this->hooks as $hook)
 		{
 			$handled = $hook->$method($this);
 			if($first_result && $handled)
 				return $handled;
 		}
-		return false;
+		return !$first_result;
 	}
 	
 	/**
@@ -126,13 +151,13 @@ final class Application extends Singleton implements ArrayAccess
 		// but is so called by register_shutdown_function
 		
 		if($this->app_state === Application::APP_STATE_FINISHED)
-			return; // we fineshed correctly
+			return true; // we fineshed correctly
 
 		if($this->app_state === Application::APP_STATE_FINISHING)
 		{
 			// TODO: Some good error/warning log mechanism should go there
 			echo "\nERROR: Application not correctly finished, error ocured while finishing\n";
-			return;
+			return false;
 		}	
 		if($this->app_state !== Application::APP_STATE_DONE)
 		{

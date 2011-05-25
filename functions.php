@@ -9,8 +9,15 @@ function get_execution_time()
 	static $microtime_start = null;
 	if($microtime_start === null)
 	{
-		$microtime_start = microtime(true);
-		return 0.0; 
+		if(isset($GLOBALS['microtime_start']))
+		{
+			$microtime_start = $GLOBALS['microtime_start'];
+		}
+		else
+		{
+			$microtime_start = microtime(true);
+			return 0.0; 
+		}
 	}	
 	return microtime(true) - $microtime_start; 
 }

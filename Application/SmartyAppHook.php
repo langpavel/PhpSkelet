@@ -13,6 +13,12 @@ class SmartyAppHook extends ApplicationHook
 	
 	function run(Application $app)
 	{
+		$this->setMimeType();
+		$this->prepareTemplate();
+		$result = false;
+		$result |= $this->runPhpScript();
+		$result |= $this->runTemplate();
+		return $result;
 	}
 
 	/**
@@ -25,7 +31,7 @@ class SmartyAppHook extends ApplicationHook
 	public function getTemplateResource($extension = 'php', $url_path = null, $recurse_up = false)
 	{
 		if($url_path === null)
-			$url_path = $this->url_path;
+			$url_path = Application::getInstance()->getRequestUri();
 		
 		if($recurse_up)
 			return $this->getTemplateResourceRecurseUp($extension, $url_path);
@@ -73,22 +79,10 @@ class SmartyAppHook extends ApplicationHook
 		return trim($req_page_norm, '/\\');
 	}
 	
-	protected function checkRequest()
-	{
-		if($this->request_url_path != $this->url_path)
-		{
-			// this is one way to tell client where resource really is, 
-			// but this no effect in browser's navigor  
-			//header('Content-Location: /'.$req_page_norm); // prepend slash!
-			
-			redirect('/'.$this->url_path);
-		}
-	}
-	
 	protected function setMimeType($url_path = null)
 	{
 		if($url_path === null)
-			$url_path = $this->url_path;
+			$url_path = Application::getInstance()->getRequestUri();
 		
 		$mimes = MimeTypes::getInstance();
 		$ext = pathinfo($url_path, PATHINFO_EXTENSION);
@@ -103,7 +97,7 @@ class SmartyAppHook extends ApplicationHook
 		{
 			$this->template_file = $template_file;
 			$this->template = new Template();
-			$this->template->assign('app', $this);
+			$this->template->assign('app', Application::getInstance());
 			return true;
 		}
 		else 
@@ -118,11 +112,9 @@ class SmartyAppHook extends ApplicationHook
 		$php_file = $this->getTemplateResource('php', $url_path, $recurse_up);
 		if(is_file($php_file))
 		{
-			$app = $GLOBALS['app'] = $this;
-			$tpl = $GLOBALS['tpl'] = $this->template;
+			$app = Application::getInstance();
+			$tpl = $this->template;
 			require $php_file;
-			//unset($GLOBALS['tpl'], $GLOBALS['app']);
-			
 			return true;
 		}
 		return false;
@@ -136,6 +128,7 @@ class SmartyAppHook extends ApplicationHook
 			return true;
 	}
 
+	/*
 	public function prepareErrorTemplate($http_code, $url_path=null)
 	{
 		if($url_path === null)
@@ -149,6 +142,6 @@ class SmartyAppHook extends ApplicationHook
 			$url_path = $this->url_path;
 		return $this->runPhpScript($url_path.'/__http'.$http_code, true);
 	}
-	
+	*/
 	
 }

@@ -9,23 +9,21 @@ abstract class ApplicationHook extends SafeObject implements IApplicationHook
 	
 	function init(Application $app)
 	{
+		return true;
 	}
 	
 	function resolveRequest(Application $app)
 	{
+		return false;
 	}
 	
 	function run(Application $app)
 	{
-		$this->checkRequest();
-		$this->setMimeType();
-		$this->prepareTemplate();
-		$result = false;
-		$result |= $this->runPhpScript();
-		$result |= $this->runTemplate();
+		return true;
 	}
 	
 	function finish(Application $app)
 	{
+		return true;
 	}
 }
