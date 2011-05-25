@@ -172,7 +172,7 @@ class SiteSynchronizer extends SafeObject
 		if(self::loadParam('ser') !== null)
 		{
 			var_export($result);
-			exit;
+			Application::getInstance()->done();
 		}
 		return $result;
 	}

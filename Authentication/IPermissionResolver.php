@@ -11,5 +11,5 @@ interface IPermissionResolver
 	 * @param string $permission
 	 * @return bool
 	 */
-	abstract public function queryPermission($permission_name);
+	function queryPermission($permission_name);
 }

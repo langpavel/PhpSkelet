@@ -91,13 +91,21 @@ final class Application extends SafeObject implements ArrayAccess
 		if($this === null)
 			return false;
 		
-		foreach($this->hooks as $hook)
+		try
 		{
-			$handled = $hook->$method($this);
-			if($first_result && $handled)
-				return $handled;
+			
+			foreach($this->hooks as $hook)
+			{
+				$handled = $hook->$method($this);
+				if($first_result && $handled)
+					return $handled;
+			}
+			return !$first_result;
 		}
-		return !$first_result;
+		catch(ApplicationDoneSpecialException $exception)
+		{
+			return true;
+		}
 	}
 	
 	/**
@@ -114,7 +122,12 @@ final class Application extends SafeObject implements ArrayAccess
 			$request_host = (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
 			
 		if($request_uri === null)
+		{
 			$request_uri = (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
+			$qmark = strpos($request_uri, '?');
+			if($qmark > 0)
+				$request_uri = substr($request_uri, 0, $qmark);
+		}
 			
 		$this->request_host = $request_host;
 		$this->request_uri = $request_uri;
@@ -175,6 +188,11 @@ final class Application extends SafeObject implements ArrayAccess
 	public function getVariables()
 	{
 		return $this->variableSet;
+	}
+
+	public function done()
+	{
+		throw new ApplicationDoneSpecialException();
 	}
 
 	public function showErrorPage($http_code, $path=null, $exit = true)

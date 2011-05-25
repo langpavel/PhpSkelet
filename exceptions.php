@@ -44,6 +44,19 @@ class PhpSkeletException extends RuntimeException { }
 class ApplicationException extends PhpSkeletException { }
 
 /**
+ * Special program-flow-control exception
+ * @author langpavel
+ */
+abstract class ApplicationSpecialException extends ApplicationException { }
+
+/**
+ * Do not create this exception, call Application::getInstance()->done(); 
+ * Inform application that execution is done
+ * @author langpavel
+ */
+class ApplicationDoneSpecialException extends ApplicationSpecialException { }
+
+/**
  * Base class for all application invalid operations 
  * @author langpavel
  */

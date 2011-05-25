@@ -1,9 +1,6 @@
 <?php
 
 require_once __DIR__.'/../../PhpSkelet.php';
-require_once __DIR__.'/SourceFile.php';
-require_once __DIR__.'/SourceDirectory.php';
-require_once __DIR__.'/PhpSourceFile.php';
 
 class SourceEntry extends SafeObject
 {
@@ -74,19 +71,29 @@ class SourceEntry extends SafeObject
 		//if($entry->isDot())
 		//	return null;
 		if($entry->isDir())
+		{
+			require_once __DIR__.'/SourceDirectory.php';
 			return new SourceDirectory($entry);
+		}
 
 		$filename = $entry->getFilename();
-			
+
 		if($filename == '.htaccess')
+		{
+			require_once __DIR__.'/HtaccessFile.php';
 			return new HtaccessFile($entry);
+		}
+
+		require_once __DIR__.'/SourceFile.php';
 			
 		$extension = pathinfo($entry->getPathname(), PATHINFO_EXTENSION);
 		switch($extension)
 		{
 			case 'php': 
+				require_once __DIR__.'/PhpSourceFile.php';
 				return new PhpSourceFile($entry); 
 			case 'tpl': 
+				require_once __DIR__.'/TplSourceFile.php';
 				return new TplSourceFile($entry); 
 			default: 
 				return new SourceFile($entry); 
@@ -94,3 +101,4 @@ class SourceEntry extends SafeObject
 	}
 	
 }
+

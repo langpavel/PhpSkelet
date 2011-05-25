@@ -96,25 +96,5 @@ function dd()
 	echo $result;
 	
 	dd_trace(0, $btrc);
-	
-	exit;
 }
 
-/**
- * Debug Dump NO die after dump
- */
-function ddd()
-{
-	$trace = debug_backtrace();
-	dd_trace(0, $trace);
-
-	$args = func_get_args();
-	if(count($args) == 0)
-		$args = $trace[1]['args'] ?: array();
-	foreach($args as $k=>$v)
-	{
-		echo "<div>Debug $k<br/>";
-		highlight_string("<?php args[$k] =\n".var_export($v, true));
-		echo '</div>';
-	}
-}

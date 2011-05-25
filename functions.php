@@ -34,7 +34,7 @@ function redirect($target = null, $temporaly = false)
 	if($target === null)
 		$target = get_POST_GET('redirect', get_POST_GET('return_url', '..'));
 	header('Location: '.$target, true, $temporaly ? 307 : 301);
-	exit();
+	Application::getInstance()->done();
 }
 
 /**
@@ -121,7 +121,7 @@ function response_json($data)
 	header_nocache();
 	header('Content-type: application/json');
 	echo json_encode($data);
-	exit;	
+	Application::getInstance()->done();	
 }
 
 function file_backup($file, $throw=true, $rename=false, $prefix='', $suffix='.bak')
