@@ -1,6 +1,6 @@
 <?php
 
-class HttpResponseCode
+class HttpResponse extends SafeObject
 {
 	public static $HTTP_CODE_TEXT = array(
 	    /* HTTP 1xx Informational */
@@ -50,9 +50,9 @@ class HttpResponseCode
 	    416=>"Requested Range Not Satisfiable",
 	    417=>"Expectation Failed",
 	    418=>"I'm a teapot",
-	    419=>"unused",
-	    420=>"unused",
-	    421=>"unused",
+	    //419=>"unused",
+	    //420=>"unused",
+	    //421=>"unused",
 	    422=>"Unprocessable Entity",
 	    423=>"Locked",
 	    424=>"Failed Dependency",
@@ -74,14 +74,11 @@ class HttpResponseCode
 	    505=>"HTTP Version Not Supported",
 	    506=>"Variant Also Negotiates",
 	    507=>"Insufficient Storage",
-	    508=>"unused",
-	    509=>"unused",
+	    //508=>"unused",
+	    //509=>"unused",
 	    510=>"Not Extended"
 	);
-}
 
-class HttpResponse extends SafeObject
-{
 	private $headers;
 	private $response_code;
 	
@@ -93,7 +90,12 @@ class HttpResponse extends SafeObject
 	
 	public function setResponseCode($code = 200)
 	{
-					
+		$this->response_code = $code;					
+	}
+	
+	public function getResponseCode()
+	{
+		return $this->response_code;
 	}
 	
 	public function setHeader($name, $value=null, $replace=true)

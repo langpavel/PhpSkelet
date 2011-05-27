@@ -42,6 +42,8 @@ class URI extends SafeObject
 
 	private static $currentURI = null;
 
+	//public static $use_parens_for_query_arrays = false;
+
 	// keep this names same as return of parse_url()
 	private $scheme = null; //e.g. http
 	private $host = null;
@@ -49,7 +51,7 @@ class URI extends SafeObject
 	private $user = null;
 	private $pass = null;
 	private $path = null;
-	private $query = null; // after the question mark ?
+	private $query_parts = array(); // after the question mark ?
 	private $fragment = null; // after the hashmark #
 
 	static function __static_construct()
@@ -94,15 +96,15 @@ class URI extends SafeObject
 			: null;
 	}
 	
-	function __construct($uri = null, $use_defaults_if_unknown = true)
+	function __construct($uri = null)
 	{
 		parent::__construct();
 		
 		if($uri !== null)
-			$this->parse($uri, $use_defaults_if_unknown);
+			$this->parse($uri);
 	}
 	
-	public function parse($uri, $use_defaults_if_unknown = true)
+	public function parse($uri)
 	{
 		$uri_parts = @parse_url($uri);
 		if($uri_parts === false)
@@ -110,32 +112,19 @@ class URI extends SafeObject
 
 		foreach ($uri_parts as $key => $val)
 			$this->$key = $val;
-
-		if($use_defaults_if_unknown)
-			$this->completeDefaults();
 	}
 	
-	public function completeDefaults()
-	{
-		if($this->host === null)
-			$this->host = self::$currentHost;
-			
-		if($this->scheme === null)
-			$this->scheme = self::$currentScheme;
-
-		if($this->port === null)
-			$this->port = self::getPortByScheme($this->scheme);
-	}
-
 	public static function getCurrent()
 	{
 		if(self::$currentURI !== null)
-			return $currentURI;
+			return clone self::$currentURI;
 		
-		$currentURI = new URI($_SERVER['REQUEST_URI'], true);
+		self::$currentURI = new URI($_SERVER['REQUEST_URI'], true);
 		// TODO: static configuration of not transient GET query parameters
-		$currentURI->setQuery($_GET);
-		return $currentURI;
+		if(isset($_SERVER['QUERY_STRING']))
+			self::$currentURI->setQuery($_SERVER['QUERY_STRING']);
+
+		return clone self::$currentURI;
 	}
 
 	public static function combine($uri1, $uri2)
@@ -162,7 +151,9 @@ class URI extends SafeObject
 		else if($path == '' || $path[0] != '/')
 			return (string) self::combine($current_uri, $this);
 
-		$scheme = ($this->scheme !== null) ? $this->scheme : self::currentScheme;
+		$scheme = $this->getScheme(true);
+		if($scheme == null)
+			$scheme = self::$currentScheme;
 		
 		return $scheme . '://' . $this->getAuthority() . $path
 			.(($this->query != '') ? ('?'.$this->query) : '')
@@ -175,11 +166,15 @@ class URI extends SafeObject
 	 */
 	public function getAuthority()
 	{
+		$host = $this->getHost();
+		if($host === null)
+			$host = self::$currentHost;
+					
 		$default_port = self::getPortByScheme($this->scheme);
 		if($this->port !== null && $default_port !== null && $default_port != $this->port)
-			$server .= $this->host .':'. $this->port;
+			$server = $host .':'. $this->port;
 		else
-			$server = $this->host;
+			$server = $host;
 
 		$userinfo = '';
 		if($this->user != '')
@@ -207,17 +202,76 @@ class URI extends SafeObject
 	/* properties */
 	
 	/**
+	 * Get value of query
+	 * @return mixed query
+	 */
+	public function getQuery($part = null)
+	{
+		if(empty($this->query_parts) || ($part !== null && !isset($this->query_parts[$part])))
+			return '';
+		$result = http_build_query($this->query_parts, '', '&');
+		// not so clever, can destroy data!
+		//if(self::$use_parens_for_query_arrays)
+		//	$result = preg_replace(
+		//		array('#(\\[|%5B)#i', '#(\\]|%5D)#i'), 
+		//		array('(', ')'), $result);
+		return $result;
+	}
+
+	/**
+	 * Set value of query
+	 * @param mixed $value query
+	 * @return URI self
+	 */
+	public function setQuery($value = null)
+	{
+		if(is_array($value))
+			$this->query_parts = $value;
+		else if($value == null)
+			$this->query_parts = array();
+		else 
+			parse_str($value, $this->query_parts);
+		return $this; 
+	}
+
+	/**
+	 * Set value of query
+	 * @param mixed $value query
+	 * @return URI self
+	 */
+	public function appendQuery($value)
+	{
+		if(is_array($value))
+		{
+			$this->query_parts = array_merge_recursive_simple($this->query_parts, $value);
+		}
+		else
+		{
+			$val = array();
+			parse_str($value, $val);
+			$this->query_parts = array_merge_recursive_simple($this->query_parts, $val);
+		}
+		return $this; 
+	}
+
+	/**
 	 * Get value of scheme
 	 * @return mixed scheme
 	 */
-	public function getScheme() { return $this->scheme; }
+	public function getScheme($decide_from_port = false) 
+	{
+		if($this->scheme == '' && $decide_from_port)
+			return self::getSchemeByPort($this->port);
+		
+		return $this->scheme;
+	}
 
 	/**
 	 * Set value of scheme
 	 * @param mixed $value scheme
 	 * @return URI self
 	 */
-	public function setScheme($value) { $this->scheme = $value; return $this; }
+	public function setScheme($value = null) { $this->scheme = $value; return $this; }
 
 	/**
 	 * Get value of host
@@ -236,14 +290,20 @@ class URI extends SafeObject
 	 * Get value of port
 	 * @return mixed port
 	 */
-	public function getPort() { return $this->port; }
+	public function getPort($decide_from_scheme = false) 
+	{
+		if($this->port === null && $decide_from_scheme)
+			return self::getPortByScheme($this->scheme);
+
+		return $this->port; 
+	}
 
 	/**
 	 * Set value of port
 	 * @param mixed $value port
 	 * @return URI self
 	 */
-	public function setPort($value) { $this->port = $value; return $this; }
+	public function setPort($value = null) { $this->port = $value; return $this; }
 
 	/**
 	 * Get value of user
@@ -256,7 +316,7 @@ class URI extends SafeObject
 	 * @param mixed $value user
 	 * @return URI self
 	 */
-	public function setUser($value) { $this->user = $value; return $this; }
+	public function setUser($value = null) { $this->user = $value; return $this; }
 
 	/**
 	 * Get value of pass
@@ -269,7 +329,7 @@ class URI extends SafeObject
 	 * @param mixed $value pass
 	 * @return URI self
 	 */
-	public function setPass($value) { $this->pass = $value; return $this; }
+	public function setPass($value = null) { $this->pass = $value; return $this; }
 
 	/**
 	 * Get value of path
@@ -285,39 +345,6 @@ class URI extends SafeObject
 	public function setPath($value) { $this->path = $value; return $this; }
 
 	/**
-	 * Get value of query
-	 * @return mixed query
-	 */
-	public function getQuery() 
-	{
-		if($part === null)
-			return $this->query;
-	}
-
-	/**
-	 * Set value of query
-	 * @param mixed $value query
-	 * @return URI self
-	 */
-	public function setQuery($value)
-	{
-		$this->query = is_array($value) ? http_build_query($value, '', '&') : $value; 
-		return $this; 
-	}
-
-	/**
-	 * Set value of query
-	 * @param mixed $value query
-	 * @return URI self
-	 */
-	public function appendQuery($value)
-	{
-		$value = is_array($value) ? http_build_query($value, '', '&') : "$value";
-		$this->query .= ($this->query === '' || $value === '') ? $value : '&' . $value; 
-		return $this; 
-	}
-
-	/**
 	 * Get value of fragment
 	 * @return mixed fragment
 	 */
@@ -328,7 +355,7 @@ class URI extends SafeObject
 	 * @param mixed $value fragment
 	 * @return URI self
 	 */
-	public function setFragment($value) { $this->fragment = $value; return $this; }
+	public function setFragment($value = null) { $this->fragment = $value; return $this; }
 
 	/* END properties */
 	
