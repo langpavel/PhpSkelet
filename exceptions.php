@@ -67,3 +67,20 @@ class InvalidOperationException extends PhpSkeletException { }
  * @author langpavel
  */
 class InvalidPropertyAccessException extends PhpSkeletException { }
+
+/**
+ * Base class for all exceptions that sends bugs to phpskelet.org website
+ */
+abstract class PhpSkeletBugException extends PhpSkeletException { } 
+
+/**
+ * DO NOT USE unless you're contibuting at phpskelet.org core. Use PhpSkeletCustomBugException instead  
+ */
+class PhpSkeletCoreBugException extends PhpSkeletBugException { } 
+
+/**
+ * Extend this class if you want track serious unpredictable errors in your code
+ * at public tracking system at phpskelet.org
+ */
+abstract class PhpSkeletCustomBugException extends PhpSkeletBugException { }
+
