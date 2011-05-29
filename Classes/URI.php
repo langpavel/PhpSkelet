@@ -2,6 +2,9 @@
 
 /**
  * URI (Uniform Resource Identifier as described in RFC3986)
+ * 
+ * @author langpavel
+ *
  */
 class URI extends SafeObject
 {
@@ -39,6 +42,8 @@ class URI extends SafeObject
 	public static $currentHost = null;
 	public static $currentScheme = null; // http or https
 	public static $currentPort = null;
+	public static $currentUser = null;
+	public static $currentPass = null;
 
 	private static $currentURI = null;
 
@@ -51,8 +56,9 @@ class URI extends SafeObject
 	private $user = null;
 	private $pass = null;
 	private $path = null;
-	private $query_parts = array(); // after the question mark ?
+	//private $query = null; // do not use this
 	private $fragment = null; // after the hashmark #
+	private $query_parts = array(); // after the question mark ?
 
 	static function __static_construct()
 	{
@@ -63,15 +69,31 @@ class URI extends SafeObject
 		else
 			throw new PhpSkeletCoreBugException();
 		
-		if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')
+		if(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off')
 			self::$currentScheme = 'https';
 		else
 			self::$currentScheme = 'http';
 		
 		if(isset($_SERVER['SERVER_PORT']))
-			self::$currentPort = $_SERVER['SERVER_PORT'];
+			self::$currentPort = (int) $_SERVER['SERVER_PORT'];
 		else
 			throw new PhpSkeletCoreBugException();
+		
+		if(isset($_SERVER['PHP_AUTH_USER']))
+			self::$currentUser = $_SERVER['PHP_AUTH_USER'];
+		
+		if(isset($_SERVER['PHP_AUTH_PW']))
+			self::$currentPass = $_SERVER['PHP_AUTH_PW'];
+	}
+	
+	/**
+	 * check if $value is instance of URI, else create new URI from $value
+	 */
+	public static function get($value)
+	{
+		if($value instanceof URI)
+			return $value;
+		return new URI($value);
 	}
 	
 	/**
@@ -111,7 +133,10 @@ class URI extends SafeObject
 			throw new InvalidArgumentException('URI is too malformed');
 
 		foreach ($uri_parts as $key => $val)
-			$this->$key = $val;
+			if($key == 'query')
+				$this->setQuery($val);
+			else
+				$this->$key = $val;
 	}
 	
 	public static function getCurrent()
@@ -123,6 +148,12 @@ class URI extends SafeObject
 		// TODO: static configuration of not transient GET query parameters
 		if(isset($_SERVER['QUERY_STRING']))
 			self::$currentURI->setQuery($_SERVER['QUERY_STRING']);
+
+		self::$currentURI->setHost(self::$currentHost);
+		self::$currentURI->setPort(self::$currentPort);
+		self::$currentURI->setScheme(self::$currentScheme);
+		self::$currentURI->setUser(self::$currentUser);
+		self::$currentURI->setPass(self::$currentPass);
 
 		return clone self::$currentURI;
 	}
@@ -155,8 +186,10 @@ class URI extends SafeObject
 		if($scheme == null)
 			$scheme = self::$currentScheme;
 		
+		$query = $this->getQuery();
+		
 		return $scheme . '://' . $this->getAuthority() . $path
-			.(($this->query != '') ? ('?'.$this->query) : '')
+			.(($query != '') ? ('?'.$query) : '')
 			.(($this->fragment != '') ? ('#'.$this->fragment) : '');
 	}
 	
@@ -205,8 +238,9 @@ class URI extends SafeObject
 	 * Get value of query
 	 * @return mixed query
 	 */
-	public function getQuery($part = null)
+	public function getQuery(/*$part = null*/)
 	{
+		// TODO
 		if(empty($this->query_parts) || ($part !== null && !isset($this->query_parts[$part])))
 			return '';
 		$result = http_build_query($this->query_parts, '', '&');
@@ -360,4 +394,3 @@ class URI extends SafeObject
 	/* END properties */
 	
 } URI::__static_construct();
-

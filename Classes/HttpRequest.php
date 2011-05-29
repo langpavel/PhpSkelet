@@ -1,0 +1,219 @@
+<?php 
+
+/**
+ * HttpRequest - request sent via HTTP.
+ *
+ * @author langpavel
+ */
+
+class HttpRequest extends SafeObject
+{
+	private static $current = null;
+	
+	/** @var string http method always lowercase */
+	private $method;
+
+	/** @var URI current request uri */
+	private $uri;
+
+	/** @var array */
+	private $post = array();
+
+	/** @var array */
+	private $files = array();
+
+	/** @var array */
+	private $cookies = array();
+
+	/** @var array */
+	private $headers = array();
+
+	/** @var string */
+	private $remoteAddress;
+
+	/** @var string */
+	private $remoteHost;
+
+	/**
+	 * Creates current HttpRequest object.
+	 * @return Request
+	 */
+	public static function getCurrent()
+	{
+		if(self::$current !== null)
+			return clone self::$current;
+		
+		if (function_exists('apache_request_headers')) 
+			$request_headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+		else 
+		{
+			$request_headers = array();
+			foreach($_SERVER as $k => $v) 
+			{
+				if(strncmp($k, 'HTTP_', 5) == 0)
+				{
+					$k = strtolower(strtr(substr($k, 5), '_', '-'));
+					$request_headers[$k] = $v;
+				}
+			}
+		}
+		
+		self::$current = new HttpRequest(
+			URI::getCurrent(), 
+			$_POST, 
+			$_FILES, 
+			$_COOKIE,
+			$request_headers, 
+			isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null,
+			isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null,
+			isset($_SERVER['REMOTE_HOST']) ? $_SERVER['REMOTE_HOST'] : null
+		);
+		
+		return clone self::$current;
+	}
+
+	public function __construct(URI $uri, $post = null, $files = null, $cookies = null,
+		$headers = null, $method = null, $remoteAddress = null, $remoteHost = null)
+	{
+		$this->setUri($uri);
+		$this->setPost($post);
+		$this->setFiles($files);
+		$this->setCookies($cookies);
+		$this->setHeaders($headers);
+		$this->setMethod($method);
+		$this->setRemoteAddress($remoteAddress);
+		$this->setRemoteHost($remoteHost);
+	}
+
+	public function isGet() { return $this->method == 'get'; }		
+	public function isPost() { return $this->method == 'post'; }		
+
+	public function getQuery() { $this->uri->getQuery(); }
+	public function setQuery($value) { $this->uri->setQuery($value); }
+
+	/**
+	 * Get value of method
+	 * @return mixed method
+	 */
+	public function getMethod() { return $this->method; }
+
+	/**
+	 * Set value of method
+	 * @param mixed $value method
+	 * @return HttpRequest self
+	 */
+	public function setMethod($value) { $this->method = strtolower($value); return $this; }
+
+	/**
+	 * Get value of url
+	 * @return mixed url
+	 */
+	public function getUrl() { return $this->url; }
+
+	/**
+	 * Set value of url
+	 * @param mixed $value url
+	 * @return HttpRequest self
+	 */
+	public function setUri($value) 
+	{
+		$this->uri = URI::get($value); 
+		return $this; 
+	}
+
+	/**
+	 * Get value of POST
+	 * @param mixed $key
+	 * @param mixed $default
+	 * @return mixed post
+	 */
+	public function getPost($key = null, $default = null) 
+	{
+		if($key === null)
+			return $this->post;
+		return isset($this->post[$key]) ? $this->post[$key] : $default;
+			
+	}
+
+	/**
+	 * Set value of POST
+	 * @param mixed $key
+	 * @param mixed $value
+	 * @return HttpRequest self
+	 */
+	public function setPost($key, $value = null)
+	{
+		if($value === null && is_array($key))
+			$this->post = array_merge($this->post, $key);
+		else
+			$this->post[$key] = $value;
+		return $this;
+	}
+
+	/**
+	 * Get value of files
+	 * @return mixed files
+	 */
+	public function getFiles() { return $this->files; }
+
+	/**
+	 * Set value of files
+	 * @param mixed $value files
+	 * @return HttpRequest self
+	 */
+	public function setFiles($value) { $this->files = $value; return $this; }
+
+	/**
+	 * Get value of cookies
+	 * @return mixed cookies
+	 */
+	public function getCookies() { return $this->cookies; }
+
+	/**
+	 * Set value of cookies
+	 * @param mixed $value cookies
+	 * @return HttpRequest self
+	 */
+	public function setCookies($value) { $this->cookies = $value; return $this; }
+
+	/**
+	 * Get value of headers
+	 * @return mixed headers
+	 */
+	public function getHeaders() { return $this->headers; }
+
+	/**
+	 * Set value of headers
+	 * @param mixed $value headers
+	 * @return HttpRequest self
+	 */
+	public function setHeaders($value) { $this->headers = $value; return $this; }
+
+	/**
+	 * Get value of remoteAddress
+	 * @return mixed remoteAddress
+	 */
+	public function getRemoteAddress() { return $this->remoteAddress; }
+
+	/**
+	 * Set value of remoteAddress
+	 * @param mixed $value remoteAddress
+	 * @return HttpRequest self
+	 */
+	public function setRemoteAddress($value) { $this->remoteAddress = $value; return $this; }
+
+	/**
+	 * Get value of remoteHost
+	 * @return mixed remoteHost
+	 */
+	public function getRemoteHost() { return $this->remoteHost; }
+
+	/**
+	 * Set value of remoteHost
+	 * @param mixed $value remoteHost
+	 * @return HttpRequest self
+	 */
+	public function setRemoteHost($value) { $this->remoteHost = $value; return $this; }
+
+
+}

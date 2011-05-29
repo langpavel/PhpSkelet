@@ -105,6 +105,5 @@ class HttpResponse extends SafeObject
 		else
 			header("$name: $value", true);
 	}
-	
-	
+
 }
