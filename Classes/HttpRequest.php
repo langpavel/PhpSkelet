@@ -88,8 +88,21 @@ class HttpRequest extends SafeObject
 	public function isGet() { return $this->method == 'get'; }		
 	public function isPost() { return $this->method == 'post'; }		
 
-	public function getQuery() { $this->uri->getQuery(); }
 	public function setQuery($value) { $this->uri->setQuery($value); }
+	public function getQuery($part = null, $default = null) 
+	{
+		return $this->uri->getQuery($part, $default); 
+	}
+
+	/**
+	 * if request is ajax or ajax or json HTTP query parameters are set
+	 */
+	public function isAjax()
+	{
+		return ('xmlhttprequest' == strtolower($this->getHeader('X-Requested-With', '')))
+			|| $this->getQuery('ajax', false)
+			|| $this->getQuery('json', false);
+	}
 
 	/**
 	 * Get value of method
@@ -177,7 +190,20 @@ class HttpRequest extends SafeObject
 	public function setCookies($value) { $this->cookies = $value; return $this; }
 
 	/**
-	 * Get value of headers
+	 * Return the value of the HTTP header. Pass the header name as the
+	 * plain, HTTP-specified header name (e.g. 'Accept-Encoding').
+	 * @param  string
+	 * @param  mixed
+	 * @return mixed
+	 */
+	public function getHeader($header, $default = NULL)
+	{
+		$header = strtolower($header);
+		return isset($this->headers[$header]) ? $this->headers[$header] : $default;
+	}
+
+	/**
+	 * Get value of headers - keys are lower-cased
 	 * @return mixed headers
 	 */
 	public function getHeaders() { return $this->headers; }
@@ -215,5 +241,11 @@ class HttpRequest extends SafeObject
 	 */
 	public function setRemoteHost($value) { $this->remoteHost = $value; return $this; }
 
-
+	public function execute()
+	{
+		// TODO: check if request is not recursive
+		// TODO: do request throught cURL
+		// TODO: return HttpResponse object or descendant - should be transparent
+		throw new NotImplementedException();
+	}
 }

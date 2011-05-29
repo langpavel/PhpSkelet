@@ -238,8 +238,11 @@ class URI extends SafeObject
 	 * Get value of query
 	 * @return mixed query
 	 */
-	public function getQuery(/*$part = null*/)
+	public function getQuery($part = null, $default = null)
 	{
+		if($part !== null)
+			return isset($this->query_parts[$part]) ? $this->query_parts[$part] : $default;
+		
 		// TODO
 		if(empty($this->query_parts) || ($part !== null && !isset($this->query_parts[$part])))
 			return '';
