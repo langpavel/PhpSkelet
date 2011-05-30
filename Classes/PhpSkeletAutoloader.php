@@ -38,8 +38,8 @@ class PhpSkeletAutoloader extends Singleton
 	 */
 	public function registerClass($classname, $file, $override = false)
 	{
-		if($override && isset(self::$classes[$classname]))
-			throw new PhpSkeletException("Class '$classname' is alredy registered in file '".self::$classes[$classname]."'");
+		if(!$override && isset($this->classes[$classname]))
+			throw new PhpSkeletException("Class '$classname' is alredy registered in file '".$this->classes[$classname]['pathname']."'");
 
 		if(!is_array($file))
 			$file = array('pathname'=>$file);
@@ -79,6 +79,18 @@ class PhpSkeletAutoloader extends Singleton
 		if(!isset($this->classes[$classname]))
 			return null;
 		return $this->classes[$classname]['pathname'];
+	}
+	
+	/**
+	 * Get info about class definition
+	 * @param string $classname
+	 * @return array 
+	 */
+	public function getClassInfo($classname)
+	{
+		if(!isset($this->classes[$classname]))
+			return null;
+		return $this->classes[$classname];
 	}
 	
 	/**

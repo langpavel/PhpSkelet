@@ -132,8 +132,10 @@ ERROR: '.$err.'
 		$classes = $phpreader->findDefinedClasses();
 		foreach($classes as $classinfo)
 		{
+			$colision = false;
 			$classname = $classinfo['name'];
-			if(isset($this->classes_paths[$classname]))
+			$colision = isset($this->classes_paths[$classname]);
+			if($colision)
 			{
 				$v =& $this->classes_paths[$classname];
 				$this->writeLn('// WARNING - class name collision');
@@ -153,7 +155,9 @@ ERROR: '.$err.'
 			$classinfo['pathname'] = $pathname;
 			
 			$comment = '// '.$modif.'class '.$classname.$extends.$implements.';';
+			if($colision) $this->writeLn("/*");
 			$this->writeLn("PhpSkeletAutoloader::register(".var_export($classname, true).", ".var_export($classinfo, true).'); '.$comment);
+			if($colision) $this->writeLn("*/");
 		}
 	}
 
