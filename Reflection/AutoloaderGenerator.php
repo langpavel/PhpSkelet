@@ -53,6 +53,9 @@ class AutoloaderGenerator extends SourceGenerator
 		$this->beginSourceFile();
 		
 		$this->writeIncludes();
+		
+		$this->writeLn();
+		$this->writeLn('$autoloader = PhpSkeletAutoloader::getInstance();');
 
 		foreach($this->dirs as $dir)
 		{
@@ -60,12 +63,7 @@ class AutoloaderGenerator extends SourceGenerator
 			$this->processPath($path, $recursive);
 		}
 
-		$this->writeLn('
-function __autoload($class)
-{
-	PhpSkeletAutoloader::load($class);
-}
-');
+		$this->writeLn("\r\nspl_autoload_register(array(\$autoloader, 'load'));\r\n");
 
 		$this->writeAmbiguous();
 	}
@@ -156,7 +154,7 @@ ERROR: '.$err.'
 			
 			$comment = '// '.$modif.'class '.$classname.$extends.$implements.';';
 			if($colision) $this->writeLn("/*");
-			$this->writeLn("PhpSkeletAutoloader::register(".var_export($classname, true).", ".var_export($classinfo, true).'); '.$comment);
+			$this->writeLn("\$autoloader->register(".var_export($classname, true).", ".var_export($classinfo, true).'); '.$comment);
 			if($colision) $this->writeLn("*/");
 		}
 	}

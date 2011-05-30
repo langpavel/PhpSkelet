@@ -16,6 +16,8 @@ class AutoloaderException extends PhpSkeletException { }
 
 class PhpSkeletAutoloader extends Singleton
 {
+	public static $throw_on_failure = false;
+	
 	protected $classes = array();
 	
 	/**
@@ -23,20 +25,9 @@ class PhpSkeletAutoloader extends Singleton
 	 * @param string $classname Class to be registered
 	 * @param array $file Codebase file of the class
 	 * @param bool[optional] $override default false - set new codebase for class
-	 */	
-	public static function register($classname, $file, $override = false)
-	{
-		self::getInstance()->registerClass($classname, $file, $override);
-	}
-
-	/**
-	 * Register class definition file for autoloader
-	 * @param string $classname Class to be registered
-	 * @param array $file Codebase file of the class
-	 * @param bool[optional] $override default false - set new codebase for class
 	 * @throws PhpSkeletException
 	 */
-	public function registerClass($classname, $file, $override = false)
+	public function register($classname, $file, $override = false)
 	{
 		if(!$override && isset($this->classes[$classname]))
 			throw new PhpSkeletException("Class '$classname' is alredy registered in file '".$this->classes[$classname]['pathname']."'");
@@ -47,26 +38,34 @@ class PhpSkeletAutoloader extends Singleton
 		$this->classes[$classname] = $file;
 	}
 	
-	public static function load($classname)
-	{
-		self::getInstance()->loadClass($classname);
-	}
-	
 	/**
-	 * Load requested class
+	 * Load requested class, 
+	 * optionally throw an exception as configured by PhpSkeletAutoloader::$throw_on_failure
+	 *  
 	 * @param string $classname name of the class
 	 * @throws AutoloaderException
 	 */
-	public function loadClass($classname)
+	public function load($classname)
 	{
 		$filename = $this->getClassFilePathname($classname);
 		if($filename === null)
-			throw new AutoloaderException("Class '$classname' is not registered in autoloader");
+		{
+			if(self::$throw_on_failure)
+				throw new AutoloaderException("Class '$classname' is not registered in autoloader");
+			else
+				return false;
+		}
 		
 		if(!is_file($filename))
-			throw new AutoloaderException("Class '$classname' is registered but file '$filename' does not exists!");
+		{
+			if(self::$throw_on_failure)
+				throw new AutoloaderException("Class '$classname' is registered but file '$filename' does not exists!");
+			else
+				return false;
+		}
 			
 		require_once $filename;
+		return true;
 	}
 
 	/**

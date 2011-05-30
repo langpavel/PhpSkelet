@@ -36,10 +36,6 @@ function dd_trace($skip = 0, $trace = null)
 		{
 			continue;
 		}
-		/*elseif($skip == -1)
-		{
-			$f = '<span style="color:#f00;">*</span>';
-		}*/
 
 		$cls = isset($t['class']) ? $t['class'] : '';
 		$obj = isset($t['object']) ? $d->dump($t['object']) : '';
@@ -64,7 +60,7 @@ function dd_trace($skip = 0, $trace = null)
 			echo '<td style="font-family:Monospace;"> </td>';
 		echo '</tr>';
 	}
-	echo '</tr></tbody></table>';
+	echo '</tbody></table>';
 }
 
 /**

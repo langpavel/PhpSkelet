@@ -151,20 +151,20 @@ class Debug //extends Singleton
 
 		array_push($this->recurse_detection, $var);
 
-		$result = '<table style="border:1px black solid; margin:0 0 3pt 10pt; padding:0 0 0 3pt; valign:top;">';
+		$result = '<table style="border:1px black solid; margin:0 0 3pt 10pt; padding:0 0 0 3pt; valign:top;">'."\r\n";
 
 		foreach($var as $k=>$v)
 		{
 			if($magic_helper && substr($k, 0, 3) === '___')
-				$result .= '<tr style="border: 1px black dashed"><td style="vertical-align:top; font-weight:bolder; font-family:Monospace;">'.substr($k, 3).'</td><td>'.$this->dump($v, true).'</td></tr>';
+				$result .= '<tr style="border: 1px black dashed"><td style="vertical-align:top; font-weight:bolder; font-family:Monospace;">'.substr($k, 3).'</td><td>'.$this->dump($v, true)."</td></tr>\r\n";
 			else
-				$result .= '<tr style="border: 1px black dashed"><td style="vertical-align:top">'.$this->dump($k).'</td><td>'.$this->dump($v, true).'</td></tr>';
+				$result .= '<tr style="border: 1px black dashed"><td style="vertical-align:top">'.$this->dump($k).'</td><td>'.$this->dump($v, true)."</td></tr>\r\n";
 		}
 
 		if($var !== array_pop($this->recurse_detection))
 			throw new RuntimeException('Inconsistent state');
 
-		$result .= '</table>';
+		$result .= "</table>\r\n";
 		return $result;
 	}
 	
