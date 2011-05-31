@@ -64,9 +64,23 @@ function dd_trace($skip = 0, $trace = null)
 }
 
 /**
- * Debug Dump
+ * Debug Dump with backtrace
  */
 function dd()
+{
+	$d = Debug::getInstance();
+
+	$result = '';
+	
+	$args = func_get_args();
+	$result = '<span style="font-family:Monospace;">dd('. $d->dump_array_comma($args) .')</span>';		
+	echo $result;
+}
+
+/**
+ * Debug Dump with backtrace
+ */
+function ddd()
 {
 	$d = Debug::getInstance();
 

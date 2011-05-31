@@ -18,7 +18,7 @@
  *
  * @author langpavel
  */
-class Debug //extends Singleton
+class Debug extends SafeObject //extends Singleton
 {
 //	private static $id_generator = 1;
 //

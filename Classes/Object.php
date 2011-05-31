@@ -15,10 +15,16 @@ require_once __DIR__.'/../PhpSkelet.php';
  */
 class Object
 {
+	private static $goid = 0;
+	private $oid = 0;
+	
 	/**
 	 * Empty constructor
 	 */
-	protected function __construct() { }
+	protected function __construct() 
+	{
+		$this->getObjectId();
+	}
 
 	/**
 	 * Enpty destructor
@@ -30,7 +36,8 @@ class Object
 	 */
 	public function __toString()
 	{
-		return '(object '.get_class($this).')';
+		$oid = $this->getObjectId();
+		return '(object '.get_class($this)."[$oid])";
 	}
 	
 	/**
@@ -39,5 +46,28 @@ class Object
 	public function getClassName()
 	{
 		return get_class($this);
+	}
+	
+	protected function __clone()
+	{
+		$this->oid = self::getNewObjectId();
+	}
+	
+	/**
+	 * Get current script unique object ID, usefull for hashes
+	 */
+	public function getObjectId()
+	{
+		return ($this->oid !== 0) ? $this->oid : ($this->oid = self::getNewObjectId());
+	}
+	
+	public static function getCurrentObjectId()
+	{
+		return self::$goid;
+	}
+
+	public static function getNewObjectId()
+	{
+		return ++self::$goid;
 	}
 }

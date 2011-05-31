@@ -23,3 +23,4 @@ class AbstractRouter extends SafeObject implements IRouter
 		;
 	}
 }
+
