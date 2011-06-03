@@ -53,9 +53,17 @@ final class Html extends HtmlWidget
 			$widget->addText($content);
 		return $widget;
 	}
-	
+
 	public static function Form($name = null, $parent = null)
 	{
 		return new HtmlForm($name, $parent);
+	}
+	
+	public static function Select($attributes = null, $binding = null, $this = null)
+	{
+		$select = new HtmlSelect($attributes, $this);
+		if($binding !== null)
+			$select->bind($binding);
+		return $select;
 	}
 }

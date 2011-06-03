@@ -76,6 +76,8 @@ class Debug extends SafeObject //extends Singleton
 				
 			self::$recurse_depth--;
 		}
+		else if(is_resource($var))
+			$result = 'resource';
 		else 
 			$result = '???';
 		

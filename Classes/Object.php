@@ -15,11 +15,27 @@ require_once __DIR__.'/../PhpSkelet.php';
  */
 class Object
 {
+	/**
+	 * runtime-wide counter of objects
+	 */
 	private static $goid = 0;
+
+	/**
+	 * current object id
+	 */
 	private $oid = 0;
 	
 	/**
-	 * Empty constructor
+	 * Do not call. Static initialization. 
+	 * It's called only once after class definition
+	 */
+	static function __static_construct()
+	{
+		self::$goid = 0;
+	}
+	
+	/**
+	 * Default constructor
 	 */
 	protected function __construct() 
 	{
@@ -27,12 +43,14 @@ class Object
 	}
 
 	/**
-	 * Enpty destructor
+	 * Default destructor
 	 */
-	public function __destruct() { }
+	public function __destruct() 
+	{
+	}
 
 	/**
-	 * Default implementation of __toString method - returns "(object {classname})"
+	 * Default implementation of __toString method - returns "(object {classname}[{oid}])"
 	 */
 	public function __toString()
 	{
@@ -48,6 +66,9 @@ class Object
 		return get_class($this);
 	}
 	
+	/**
+	 * default implementation of clone
+	 */
 	protected function __clone()
 	{
 		$this->oid = self::getNewObjectId();
@@ -61,13 +82,21 @@ class Object
 		return ($this->oid !== 0) ? $this->oid : ($this->oid = self::getNewObjectId());
 	}
 	
+	/**
+	 * get last used object identifier
+	 * @return int
+	 */
 	public static function getCurrentObjectId()
 	{
 		return self::$goid;
 	}
 
+	/**
+	 * get new object identifier
+	 * @return int
+	 */
 	public static function getNewObjectId()
 	{
 		return ++self::$goid;
 	}
-}
+} Object::__static_construct();

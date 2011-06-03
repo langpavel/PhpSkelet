@@ -8,6 +8,7 @@
  */
 
 require_once __DIR__.'/../Classes/SafeObject.php';
+require_once __DIR__.'/../Interfaces/ISingleton.php';
 
 /**
  * Singleton abstract base class implementation
@@ -19,7 +20,7 @@ require_once __DIR__.'/../Classes/SafeObject.php';
  *
  * @author Pavel Lang
  */
-abstract class Singleton extends SafeObject
+abstract class Singleton extends SafeObject implements ISingleton
 {
 	/**
 	 * private static array of all created singleton instances

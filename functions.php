@@ -111,6 +111,27 @@ function str_remove_dia($text)
 	return iconv("utf-8", "ascii//TRANSLIT", $text);
 }
 
+function get_type($var)
+{
+	if(is_object($var))
+		return get_class($var);
+	if(is_null($var))
+		return 'null';
+	if(is_string($var))
+		return 'string';
+	if(is_array($var))
+		return 'array';
+	if(is_int($var))
+		return 'integer';
+	if(is_bool($var))
+		return 'boolean';
+	if(is_float($var))
+		return 'float';
+	if(is_resource($var))
+		return 'resource';
+	throw new NotImplementedException();
+}
+
 function get_POST($name, $default=null)
 {
 	return isset($_POST[$name]) ? $_POST[$name] : $default; 
@@ -144,6 +165,17 @@ function header_nocache()
 {
 	header('Cache-Control: no-cache, must-revalidate');
 	header('Pragma: no-cache');
+}
+
+/**
+ * Behaves as build-in is_null() except for DbNull returns true.
+ * @retur bool if value is null or DbNull
+ */
+function isnull($value)
+{
+	if($value instanceof DbNull)
+		return true;
+	return is_null($value);
 }
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-abstract class EntityMapping extends SafeObject implements ArrayAccess, IteratorAggregate
+abstract class EntityMapping extends Singleton
 {
 	private $columns = array();
 	
@@ -37,6 +37,21 @@ abstract class EntityMapping extends SafeObject implements ArrayAccess, Iterator
 	{
 		return $this->columns[$col_name];
 	}
+
+	/**
+	 * Transform raw database data to entity
+	 * @param Entity $entity entity or entity alias 
+	 * @param array $data values readed from database
+	 * @return Entity
+	 */
+	public abstract function loadEntity($entity, $data);
+	
+	/**
+	 * Transform entity to database values
+	 * @param Entity $entity
+	 * @return array data to persist
+	 */
+	public abstract function saveEntity(Entity $entity);
 
 	/* ArrayAccess interface */
 	public function offsetExists ($offset) { return $this->hasColumn($offset); }

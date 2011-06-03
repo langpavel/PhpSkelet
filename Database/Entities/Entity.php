@@ -1,23 +1,31 @@
 <?php
 
-abstract class Entity extends SafeObject implements ArrayAccess
+abstract class Entity extends Object implements IEntity
 {
+	// KEEP IN MIND THAT FOR EVERY DATABASE ROW THIS IS INSTANTIATED
+	// TRY STORE MINIMUM AS POSSIBLE IN ENTITY INSTANCE!!!
+	// IF POSSIBLE, MOVE ENTITY CONSTANT THINGS TO CLASS STATICS
+	
+	// ENUM
 	const VERSION_DEFAULT = 0;
 	const VERSION_OLD = 1;
 	const VERSION_NEW = 2;
-	
-	const STATE_READY = 0;
-	const STATE_CONSTRUCTION = 1;
-	const STATE_LOADING = 2;
-	const STATE_SAVING = 3;
+
+	// FLAGS
+	const FLAGS_UNKNOWN_STATE = 0x00;
+	const FLAGS_DATA_LOADED  = 0x01;
+	const FLAGS_DATA_CHANGED = 0x02;
+	const FLAGS_DATA_SAVE_INSERT  = 0x04;
+	const FLAGS_DATA_SAVE_UPDATE  = 0x08;
+	const FLAGS_DATA_SAVE_REPLACE  = 0x0c;
 	
 	/**
 	 * Entity manager that owns this instance 
 	 * @var EntityManager 
 	 */
-	protected $manager;
-	protected $entityID;
-	private $internal_state = Entity::STATE_CONSTRUCTION;
+	private $entityTable;
+	
+	private $flags = Entity::FLAGS_UNKNOWN_STATE;
 	
 	private $row;
 
@@ -30,9 +38,13 @@ abstract class Entity extends SafeObject implements ArrayAccess
 		$this->row = array(Entity::VERSION_DEFAULT=>$defaults, Entity::VERSION_OLD=>array(), Entity::VERSION_NEW=>$defaults);
 	}
 
-	public static function create()
+	public static function create($entityId = null)
 	{
-		$class = get_called_class();
+		if($entityId === null)
+		{
+			$class = get_called_class();
+			$entityId = $class::getEntityId();
+		}
 		$entity = new $class($class, EntityManager::getInstance());
 		return $entity;		
 	}

@@ -7,6 +7,8 @@
  * @license This source file is subject to the PhpSkelet/LGPL license.
  */
 
+header('Content-Type: text/html');
+ 
 echo '<?xml version="1.0" encoding="utf-8" ?>';
 
 ?>

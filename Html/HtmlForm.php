@@ -15,5 +15,11 @@ class HtmlForm extends HtmlWidget
 		$this->setAttribute('name', $name);
 		$this->setAttribute('id', $name);
 	}
+
+	public function addSelect($attributes=null, $content=null)
+	{
+		Html::Select($attributes, $content, $this);
+		return $this;
+	}
 	
 }
