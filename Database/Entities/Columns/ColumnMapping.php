@@ -10,6 +10,7 @@ abstract class ColumnMapping extends SafeObject
 	private $nullable;
 	private $required;
 	private $default_value;
+	private $concurrency_checked;
 
 	/**
 	 * consumes and checks costructor parameters
@@ -54,6 +55,7 @@ abstract class ColumnMapping extends SafeObject
 			$this->consume_param($params, 'nullable', null, true, array(true, false));
 			$this->consume_param($params, 'required', null, false, array(true, false));
 			$this->consume_param($params, 'default_value');
+			$this->consume_param($params, 'concurrency_checked', null, true, array(true, false));
 		}
 		
 		if(!empty($params))
@@ -193,6 +195,19 @@ abstract class ColumnMapping extends SafeObject
 	 * @return ColumnMapping self
 	 */
 	public function setDefaultValue($value) { $this->default_value = $value; return $this; }
+
+	/**
+	 * Get value of concurrency_checked
+	 * @return mixed concurrency_checked
+	 */
+	public function isConcurrencyChecked() { return $this->concurrency_checked; }
+
+	/**
+	 * Set value of concurrency_checked
+	 * @param mixed $value concurrency_checked
+	 * @return ColumnMapping self
+	 */
+	public function setConcurrencyChecked($value) { $this->concurrency_checked = $value; return $this; }
 
 
 }

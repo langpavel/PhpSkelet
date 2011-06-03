@@ -10,7 +10,8 @@ class SqlTypeConverter extends Singleton
 	protected function __construct()
 	{
 		parent::__construct();
-		$this->addConversion
+		$this->addConversion('null', array($this, 'transient_convert'));
+		$this->addConversion('null', array($this, 'transient_convert'));
 	}
 	
 	public function addConversion($type, $converter)

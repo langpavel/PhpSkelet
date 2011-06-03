@@ -7,6 +7,11 @@ final class EntityManager extends Singleton
 	 */
 	private $entities = array();
 	
+	/**
+	 * all currently loaded instances
+	 */
+	private $instances = array();	
+	
 	private function getEntityProperty($entity, $key)
 	{
 		if($entity instanceof Entity)
@@ -74,6 +79,8 @@ final class EntityManager extends Singleton
 			throw new InvalidOperationException("Cannot register alias '$entityId', already registered");
 		$this->entities[$alias] = & $this->entities[$entityId];
 	}
+	
+	
 }
 
 

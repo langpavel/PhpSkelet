@@ -1,33 +1,21 @@
 <?php
 
-abstract class Entity extends Object implements IEntity
+abstract class Entity implements IEntity
 {
 	// KEEP IN MIND THAT FOR EVERY DATABASE ROW THIS IS INSTANTIATED
 	// TRY STORE MINIMUM AS POSSIBLE IN ENTITY INSTANCE!!!
 	// IF POSSIBLE, MOVE ENTITY CONSTANT THINGS TO CLASS STATICS
 	
-	// ENUM
-	const VERSION_DEFAULT = 0;
-	const VERSION_OLD = 1;
-	const VERSION_NEW = 2;
-
-	// FLAGS
-	const FLAGS_UNKNOWN_STATE = 0x00;
-	const FLAGS_DATA_LOADED  = 0x01;
-	const FLAGS_DATA_CHANGED = 0x02;
-	const FLAGS_DATA_SAVE_INSERT  = 0x04;
-	const FLAGS_DATA_SAVE_UPDATE  = 0x08;
-	const FLAGS_DATA_SAVE_REPLACE  = 0x0c;
-	
 	/**
 	 * Entity manager that owns this instance 
 	 * @var EntityManager 
 	 */
-	private $entityTable;
+	private $flags = IEntity::FLAGS_UNKNOWN_STATE;
 	
-	private $flags = Entity::FLAGS_UNKNOWN_STATE;
-	
-	private $row;
+	/**
+	 * All data are stored here in array with key as version
+	 */
+	private $data;
 
 	protected function __construct($entityID, EntityManager $entity_manager)
 	{
