@@ -1,6 +1,6 @@
 <?php
 
-abstract class ColumnMapping extends SafeObject
+abstract class TableColumn extends SafeObject
 {
 	private $name;
 	private $db_column;
@@ -48,18 +48,19 @@ abstract class ColumnMapping extends SafeObject
 		
 		if($params !== null)
 		{
-			$this->consume_param($params, 'db_column', array($this, 'setDbColumn'));
+			$this->consume_param($params, 'db_column', array($this, 'setDbColumn'), $name);
 			$this->consume_param($params, 'display_name');
 			$this->consume_param($params, 'display_hint');
 			$this->consume_param($params, 'delay_load', null, false, array(true, false));
 			$this->consume_param($params, 'nullable', null, true, array(true, false));
 			$this->consume_param($params, 'required', null, false, array(true, false));
 			$this->consume_param($params, 'default_value');
+			$this->consume_param($params, 'default', array($this, 'setDefaultValue'));
 			$this->consume_param($params, 'concurrency_checked', null, true, array(true, false));
 		}
 		
 		if(!empty($params))
-			throw new InvalidArgumentException('Unknown parameter(s) passed: \''.(
+			throw new InvalidArgumentException('Column: \''.$name.'\'Unknown parameter(s) passed: \''.(
 				implode('\', \'', array_keys($params))).'\'');
 	}	
 	
@@ -69,7 +70,7 @@ abstract class ColumnMapping extends SafeObject
 	 * @return mixed true if value is correct or repaired, 
 	 * 		otherwise can return error string or false
 	 */
-	public abstract function validate(&$value);
+	public abstract function validateValue(&$value, $strict = true);
 	
 	/**
 	 * Transform $value given from database to PHP mapped type
@@ -128,7 +129,7 @@ abstract class ColumnMapping extends SafeObject
 	 * @param mixed $value delay_load
 	 * @return ColumnMapping self
 	 */
-	protected function setDelayLoad($value) { $this->delay_load = $value; return $this; }
+	public function setDelayLoad($value) { $this->delay_load = $value; return $this; }
 
 	/**
 	 * Get value of display_name

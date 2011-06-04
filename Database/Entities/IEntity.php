@@ -17,7 +17,7 @@ interface IEntity extends ArrayAccess
 
 	// FLAGS
 	const FLAGS_UNKNOWN_STATE = 0x00;
-	const FLAGS_KNOWN_ID  = 0x01;
+	const FLAGS_ATTACHED  = 0x01; // if entity is attached to EntityTable
 	const FLAGS_DATA_SAVE_INSERT  = 0x02;
 	const FLAGS_DATA_SAVE_UPDATE  = 0x04;
 	const FLAGS_DATA_SAVE_REPLACE  = 0x06;
@@ -27,9 +27,9 @@ interface IEntity extends ArrayAccess
 
 	/**
 	 * Get entity mapping
-	 * @return EntityMapping
+	 * @return EntityTable
 	 */
-	public static function getMapping();
+	public static function getTable();
 	
 	public static function create();
 	public static function load();
@@ -40,10 +40,10 @@ interface IEntity extends ArrayAccess
 	public function save();
 	public function delete();
 	
-	public function setPrimaryKey($id, $version);
-	public function getPrimaryKey($version);
+	public function setPrimaryKey($id, $version = IEntity::VERSION_NEW);
+	public function getPrimaryKey($version = IEntity::VERSION_NEW);
 	
-	public function has($name);
+	public function has($name, $version = null);
 	public function get($name, $version = IEntity::VERSION_NEW);
 	public function set($name, $value, $version = IEntity::VERSION_NEW);
 	

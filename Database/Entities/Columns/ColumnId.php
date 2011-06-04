@@ -1,13 +1,13 @@
 <?php
 
-class ColumnId extends ColumnInteger
+class ColumnId extends TableColumn
 {
 	public static $default_display_name = 'ID';
 	public static $default_display_hint = 'Primary Key';
 	
 	public function __construct()
 	{
-		parent::__construct('ID', array(
+		parent::__construct('id', array(
 			'db_column'=>'id',
 			'display_name'=>self::$default_display_name,
 			'display_hint'=>self::$default_display_hint,
@@ -18,7 +18,7 @@ class ColumnId extends ColumnInteger
 		));
 	}
 	
-	public function validate(&$value)
+	public function validateValue(&$value, $strict=true)
 	{
 		if($value instanceof PrimaryKeyValueProxy)
 			return true;

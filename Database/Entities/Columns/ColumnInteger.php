@@ -1,6 +1,6 @@
 <?php
 
-class ColumnInteger extends ColumnMapping
+class ColumnInteger extends TableColumn
 {
 	private $display_format;
 	
@@ -28,10 +28,12 @@ class ColumnInteger extends ColumnMapping
 	 */
 	public function setDisplayFormat($value) { $this->display_format = $value; return $this; }
 
-	public function validate(&$value)
+	public function validateValue(&$value, $strict=true)
 	{
 		if(is_int($value))
 			return true;
+		if($strict)
+			return 'Not integer';
 		if(is_numeric($value))
 		{
 			$value = (int)$value;

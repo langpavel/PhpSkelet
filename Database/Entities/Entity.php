@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * 
+ */
 abstract class Entity implements IEntity
 {
 	// KEEP IN MIND THAT FOR EVERY DATABASE ROW THIS IS INSTANTIATED
@@ -17,86 +20,133 @@ abstract class Entity implements IEntity
 	 */
 	private $data;
 
-	protected function __construct($entityID, EntityManager $entity_manager)
+	/**
+	 * Good reason for private constructor
+	 */
+	private function __construct()
 	{
-		parent::__construct();
-		$this->manager = $entity_manager;
-		$this->entityID = $entityID;
-		$defaults=$this->getDefaults();
-		$this->row = array(Entity::VERSION_DEFAULT=>$defaults, Entity::VERSION_OLD=>array(), Entity::VERSION_NEW=>$defaults);
-	}
-
-	public static function create($entityId = null)
-	{
-		if($entityId === null)
-		{
-			$class = get_called_class();
-			$entityId = $class::getEntityId();
-		}
-		$entity = new $class($class, EntityManager::getInstance());
-		return $entity;		
+		$this->data = array(
+			IEntity::VERSION_ORIGINAL => array(),
+			IEntity::VERSION_ORIGINAL_DB => array(),
+		);
 	}
 	
 	/**
-	 * Get default values
-	 * @return array all column default values, keys are column names
+	 * Do not call this. Internal use only
 	 */
-	public static function getDefaults()
+	public static final function createNewUninitializedInstance()
 	{
-		return array('id'=>null);
-	}
-	
-	public function setId($id, $version = Entity::VERSION_NEW)
-	{
-		$this->set('id', $id);
-		$this->manager->registerInstance($this->entityID, $id, $this, true);
-	}
-	
-	public function getId($version = Entity::VERSION_NEW)
-	{
-		return $this->getValue('id', $version);
-	}
-	
-	public function initNew()
-	{
-		$this->setId(null);
-	}
-	
-	public function __toString()
-	{
-		return '[Entity class '.get_class($this).": $this->entityID:$this->id]";
+		$cls = get_called_class();
+		return new $cls();
 	}
 
-	public function set($name, $value, $version = Entity::VERSION_NEW)
+	public function __toString()
 	{
-		if(!$this->has($name))
+		return '[Entity '.get_class($this)."']";
+	}
+
+	/**
+	 * @return EntityMapping
+	 */
+	public static function getTable()
+	{
+		$cls = get_called_class().'Table';
+		return $cls::getInstance();
+	}
+
+	public static final function create()
+	{
+		return static::getTable()->create(func_get_args());
+	}
+
+	public static final function load()
+	{
+		return static::getTable()->load(func_get_args());
+	}
+
+	public static function replace()
+	{
+		return static::getTable()->replace(func_get_args());
+	}
+	
+	public static function exists()
+	{
+		return static::getTable()->exists(func_get_args());
+	}
+	
+	public static function find()
+	{
+		return static::getTable()->find(func_get_args());
+	}
+
+	public function save()
+	{
+		return static::getTable()->save($this);
+	}
+
+	public function delete()
+	{
+		return static::getTable()->delete($this);
+	}
+
+	public function setPrimaryKey($id, $version = IEntity::VERSION_NEW)
+	{
+		throw new NotImplementedException();
+	}
+
+	public function getPrimaryKey($version = IEntity::VERSION_NEW)
+	{
+		throw new NotImplementedException();
+	}
+	
+	public function set($name, $value, $version = Entity::VERSION_NEW, $trust_args = false)
+	{
+		if(!$trust_args && !$this->has($name))
 			throw new InvalidArgumentException("set('$name', ..., ver$version)");
-		$this->row[$version][$name] = $value;
+		$this->data[$version][$name] = $value;
 	}
 	
-	public function has($name)
+	public function has($name, $version = null)
 	{
-		return array_key_exists($name, $this->row[Entity::VERSION_DEFAULT]);
+		if($version === null)
+			return $this->getTable()->hasColumn($name);
+			
+		return array_key_exists($name, $this->data[$version]);
 	}
 	
-	public function get($name, $version = Entity::VERSION_NEW)
+	public function get($name, $version = Entity::VERSION_NEW, $trust_args = false)
 	{
 		if(!$this->has($name))
 			throw new InvalidArgumentException("get('$name', ver$version)");
-		return $this->row[$version][$name];
+		return $this->data[$version][$name];
 	}
-	
+
+	/*	
 	public function revert($name=null)
 	{
 		if($name === null)
-			$this->row[Entity::VERSION_NEW] = $this->row[Entity::VERSION_OLD];
+			$this->data[Entity::VERSION_NEW] = $this->data[Entity::VERSION_OLD];
 		else 
 			$this->setValue($name, $this->getValue($name, $version = Entity::VERSION_OLD));
+	}
+	*/
+
+	public function hasChanges()
+	{
+		throw new NotImplementedException();
+	}
+
+	public function getChanges()
+	{
+		throw new NotImplementedException();
 	}
 	
 	public function offsetExists ($offset) { return $this->has($offset); }
 	public function offsetGet ($offset) { return $this->get($offset); }
 	public function offsetSet ($offset, $value) { return $this->set($offset, $value); }
 	public function offsetUnset ($offset) { $this->revert($offset); }
+
+	public function __get($name) { return $this->get($name); }
+	public function __set($name, $value) { $this->set($name, $value); }
 	
 }
