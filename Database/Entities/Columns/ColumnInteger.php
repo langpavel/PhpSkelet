@@ -28,18 +28,24 @@ class ColumnInteger extends TableColumn
 	 */
 	public function setDisplayFormat($value) { $this->display_format = $value; return $this; }
 
-	public function validateValue(&$value, $strict=true)
+	public function correctValue(&$value, &$message = null, $strict = false)
 	{
 		if(is_int($value))
 			return true;
+
+		$message='Value is not integer';
+
 		if($strict)
-			return 'Not integer';
+			return false;
+		
 		if(is_numeric($value))
 		{
 			$value = (int)$value;
 			return true;
 		}
-		return 'Not integer';
+
+		$message='Value is not a valid integer';
+		return false;
 	}
 
 }

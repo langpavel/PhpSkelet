@@ -18,11 +18,11 @@ class ColumnId extends TableColumn
 		));
 	}
 	
-	public function validateValue(&$value, $strict=true)
+	public function correctValue(&$value, &$message = null, $strict = false)
 	{
 		if($value instanceof PrimaryKeyValueProxy)
 			return true;
-		return parent::validate($value);
+		return parent::correctValue($value, $message, $strict);
 	}
 
 	public function toDbFormat($value)

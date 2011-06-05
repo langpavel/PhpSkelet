@@ -65,12 +65,12 @@ abstract class TableColumn extends SafeObject
 	}	
 	
 	/**
-	 * Validate and correct value. Must be able convert from string.
-	 * @param mixed $value to validate
-	 * @return mixed true if value is correct or repaired, 
-	 * 		otherwise can return error string or false
+	 * Validate and correct value. Must be able convert from string 
+	 * (to use with html forms).
+	 * @param mixed $value reference to validate
+	 * @return bool if is correct or repaired
 	 */
-	public abstract function validateValue(&$value, $strict = true);
+	public abstract function correctValue(&$value, &$message = null, $strict = false);
 	
 	/**
 	 * Transform $value given from database to PHP mapped type

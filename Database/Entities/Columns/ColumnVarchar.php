@@ -1,6 +1,6 @@
 <?php
 
-class ColumnVarchar extends TableColumn
+class ColumnVarchar extends ColumnText
 {
 	private $length;
 	
@@ -18,28 +18,19 @@ class ColumnVarchar extends TableColumn
 		parent::__construct($name, $params);
 	}
 	
-	/**
-	 * Get value of display_format
-	 * @return mixed display_format
-	 */
-	public function getDisplayFormat() { return $this->display_format; }
-
-	/**
-	 * Set value of display_format - as of sprintf()
-	 * @param mixed $value display_format
-	 * @return ColumnInteger self
-	 */
-	public function setDisplayFormat($value) { $this->display_format = $value; return $this; }
-
-	public function validateValue(&$value, $strict=true)
+	public function correctValue(&$value, &$message = null, $strict = false)
 	{
+		$result = parent::correctValue($value, $message, $strict);
+		if($result !== true)
+			return $result;
+			
 		$val = (string) $value;
 		if($this->length !== null && strlen($val) > $this->length)
 		{
+			$value = substr($value, 0, $this->length);
+			$message = "String is too long";
 			if($strict)
-				return "String is too long";
-			else
-				$value = substr($value, 0, $this->length);
+				return false;
 		}
 		return true;
 	}
