@@ -1,20 +1,20 @@
 <?php
 
 /**
- * 
+ *
  */
 abstract class Entity implements IEntity
 {
 	// KEEP IN MIND THAT FOR EVERY DATABASE ROW THIS IS INSTANTIATED
 	// TRY STORE MINIMUM AS POSSIBLE IN ENTITY INSTANCE!!!
 	// IF POSSIBLE, MOVE ENTITY CONSTANT THINGS TO CLASS STATICS
-	
+
 	/**
-	 * Entity manager that owns this instance 
-	 * @var EntityManager 
+	 * Entity manager that owns this instance
+	 * @var EntityManager
 	 */
 	private $flags = IEntity::FLAGS_UNKNOWN_STATE;
-	
+
 	/**
 	 * All data are stored here in array with key as version
 	 */
@@ -30,7 +30,7 @@ abstract class Entity implements IEntity
 			IEntity::VERSION_ORIGINAL_DB => array(),
 		);
 	}
-	
+
 	/**
 	 * Do not call this. Internal use only
 	 */
@@ -68,12 +68,12 @@ abstract class Entity implements IEntity
 	{
 		return static::getTable()->replace(func_get_args());
 	}
-	
+
 	public static function exists()
 	{
 		return static::getTable()->exists(func_get_args());
 	}
-	
+
 	public static function find()
 	{
 		return static::getTable()->find(func_get_args());
@@ -98,22 +98,22 @@ abstract class Entity implements IEntity
 	{
 		throw new NotImplementedException();
 	}
-	
+
 	public function set($name, $value, $version = Entity::VERSION_NEW, $trust_args = false)
 	{
 		if(!$trust_args && !$this->has($name))
 			throw new InvalidArgumentException("set('$name', ..., ver$version)");
 		$this->data[$version][$name] = $value;
 	}
-	
+
 	public function has($name, $version = null)
 	{
 		if($version === null)
 			return $this->getTable()->hasColumn($name);
-			
+
 		return array_key_exists($name, $this->data[$version]);
 	}
-	
+
 	public function get($name, $version = Entity::VERSION_NEW, $trust_args = false)
 	{
 		if(!$this->has($name))
@@ -121,15 +121,16 @@ abstract class Entity implements IEntity
 		return $this->data[$version][$name];
 	}
 
-	/*	
 	public function revert($name=null)
 	{
 		if($name === null)
-			$this->data[Entity::VERSION_NEW] = $this->data[Entity::VERSION_OLD];
-		else 
+		{
+			$this->data[IEntity::VERSION_NEW] = $this->data[IEntity::VERSION_ORIGINAL];
+			$this->data[IEntity::VERSION_NEW_DB] = $this->data[IEntity::VERSION_ORIGINAL_DB];
+		}
+		else
 			$this->setValue($name, $this->getValue($name, $version = Entity::VERSION_OLD));
 	}
-	*/
 
 	public function hasChanges()
 	{
@@ -140,7 +141,7 @@ abstract class Entity implements IEntity
 	{
 		throw new NotImplementedException();
 	}
-	
+
 	public function offsetExists ($offset) { return $this->has($offset); }
 	public function offsetGet ($offset) { return $this->get($offset); }
 	public function offsetSet ($offset, $value) { return $this->set($offset, $value); }
@@ -148,5 +149,5 @@ abstract class Entity implements IEntity
 
 	public function __get($name) { return $this->get($name); }
 	public function __set($name, $value) { $this->set($name, $value); }
-	
+
 }

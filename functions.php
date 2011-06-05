@@ -63,6 +63,26 @@ function str_start_with($required, $text)
 }
 
 /**
+ * Append value or array items to array
+ * @return int
+ */
+function array_append(array &$array, $value)
+{
+	if(is_array($value))
+	{
+		$c = 0;
+		foreach($value as $val)
+		{
+			$array[] = $val;
+			$c++;
+		}
+		return $c;
+	}
+	$array[] = $value;
+	return 1;
+}
+
+/**
  * Behaves like array_merge_recursive and array_merge, but 
  * does not create new array if value is not array type, 
  * instead replace it as array_merge do

@@ -6,7 +6,7 @@ class ColumnBool extends ColumnInteger
 	{
 		parent::__construct($name, $params);
 	}
-	
+
 	public function validateValue(&$value, $strict=true)
 	{
 		if(is_bool($value))
@@ -17,4 +17,13 @@ class ColumnBool extends ColumnInteger
 		return true;
 	}
 
+	function fromDbFormat($value)
+	{
+		return (bool)$value;
+	}
+
+	function toDbFormat($value)
+	{
+		return $value ? 1 : 0;
+	}
 }
