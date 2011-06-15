@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * HttpRequest - request sent via HTTP.
@@ -6,10 +6,10 @@
  * @author langpavel
  */
 
-class HttpRequest extends SafeObject
+class HttpRequest extends SafeObject implements ISingleton, ArrayAccess
 {
 	private static $current = null;
-	
+
 	/** @var string http method always lowercase */
 	private $method;
 
@@ -35,20 +35,21 @@ class HttpRequest extends SafeObject
 	private $remoteHost;
 
 	/**
-	 * Creates current HttpRequest object.
-	 * @return Request
+	 * Get instance of current HttpRequest.
+	 * Be carefull, do not modify this instance if it not what you really want.
+	 * You can call HttpRequest::getCurrent() with feel of safety in your head.
 	 */
-	public static function getCurrent()
+	public static function getInstance()
 	{
 		if(self::$current !== null)
-			return clone self::$current;
-		
-		if (function_exists('apache_request_headers')) 
+			return self::$current;
+
+		if (function_exists('apache_request_headers'))
 			$request_headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
-		else 
+		else
 		{
 			$request_headers = array();
-			foreach($_SERVER as $k => $v) 
+			foreach($_SERVER as $k => $v)
 			{
 				if(strncmp($k, 'HTTP_', 5) == 0)
 				{
@@ -57,19 +58,28 @@ class HttpRequest extends SafeObject
 				}
 			}
 		}
-		
+
 		self::$current = new HttpRequest(
-			URI::getCurrent(), 
-			$_POST, 
-			$_FILES, 
+			URI::getCurrent(),
+			$_POST,
+			$_FILES,
 			$_COOKIE,
-			$request_headers, 
+			$request_headers,
 			isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null,
 			isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null,
 			isset($_SERVER['REMOTE_HOST']) ? $_SERVER['REMOTE_HOST'] : null
 		);
-		
-		return clone self::$current;
+
+		return self::$current;
+	}
+
+	/**
+	 * Creates current HttpRequest object.
+	 * @return Request
+	 */
+	public static function getCurrent()
+	{
+		return clone self::getInstance();
 	}
 
 	public function __construct(URI $uri, $post = null, $files = null, $cookies = null,
@@ -85,13 +95,13 @@ class HttpRequest extends SafeObject
 		$this->setRemoteHost($remoteHost);
 	}
 
-	public function isGet() { return $this->method == 'get'; }		
-	public function isPost() { return $this->method == 'post'; }		
+	public function isGet() { return $this->method == 'get'; }
+	public function isPost() { return $this->method == 'post'; }
 
 	public function setQuery($value) { $this->uri->setQuery($value); }
-	public function getQuery($part = null, $default = null) 
+	public function getQuery($part = null, $default = null)
 	{
-		return $this->uri->getQuery($part, $default); 
+		return $this->uri->getQuery($part, $default);
 	}
 
 	/**
@@ -118,20 +128,20 @@ class HttpRequest extends SafeObject
 	public function setMethod($value) { $this->method = strtolower($value); return $this; }
 
 	/**
-	 * Get value of url
-	 * @return mixed url
+	 * Get value of uri
+	 * @return mixed uri
 	 */
-	public function getUrl() { return $this->url; }
+	public function getUri() { return $this->uri; }
 
 	/**
 	 * Set value of url
 	 * @param mixed $value url
 	 * @return HttpRequest self
 	 */
-	public function setUri($value) 
+	public function setUri($value)
 	{
-		$this->uri = URI::get($value); 
-		return $this; 
+		$this->uri = URI::get($value);
+		return $this;
 	}
 
 	/**
@@ -140,12 +150,12 @@ class HttpRequest extends SafeObject
 	 * @param mixed $default
 	 * @return mixed post
 	 */
-	public function getPost($key = null, $default = null) 
+	public function getPost($key = null, $default = null)
 	{
 		if($key === null)
 			return $this->post;
 		return isset($this->post[$key]) ? $this->post[$key] : $default;
-			
+
 	}
 
 	/**
@@ -241,11 +251,35 @@ class HttpRequest extends SafeObject
 	 */
 	public function setRemoteHost($value) { $this->remoteHost = $value; return $this; }
 
-	public function execute()
+
+	public function offsetExists ($offset) { throw new NotImplementedException(); }
+
+	/**
+	 * Get value of POST or GET
+	 * @param offset
+	 */
+	public function offsetGet($offset)
 	{
-		// TODO: check if request is not recursive
-		// TODO: do request throught cURL
-		// TODO: return HttpResponse object or descendant - should be transparent
-		throw new NotImplementedException();
+		// TODO: Implement all required
+		return isset($this->post[$offset]) ? $this->post[$offset] : $this->uri->getQuery($offset, null);
 	}
+
+	/**
+	 * @param offset
+	 * @param value
+	 */
+	public function offsetSet ($offset, $value) { throw new NotImplementedException(); }
+
+	/**
+	 * @param offset
+	 */
+	public function offsetUnset ($offset) { throw new NotImplementedException(); }
+
+	//public function execute()
+	//{
+	//	// TODO: check if request is not recursive
+	//	// TODO: do request throught cURL
+	//	// TODO: return HttpResponse object or descendant - should be transparent
+	//	throw new NotImplementedException();
+	//}
 }

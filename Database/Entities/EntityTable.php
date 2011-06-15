@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Use this class only for column definition.
+ * All logic should be implemented in concrete descendant of Entity
+ *
+ * @author Pavel Lang (langpavel@phpskelet.org)
+ */
 abstract class EntityTable extends Singleton
 {
 	protected $dbTable;
@@ -7,7 +13,7 @@ abstract class EntityTable extends Singleton
 	protected $entityType;
 	protected $connection;
 
-	public function __construct()
+	protected function __construct()
 	{
 		parent::__construct();
 		if($this->dbTable === null)
@@ -98,9 +104,17 @@ abstract class EntityTable extends Singleton
 		return implode(', ', $result);
 	}
 
-	public function load($primary_key, $columns = null)
+	/**
+	 * Do not call this, call static methods on concrete entity
+	 * @param unknown_type $primary_key
+	 * @param unknown_type $columns
+	 * @param unknown_type $can_create
+	 * @throws ApplicationException
+	 */
+	public function load($primary_key, $columns = null, $can_create = false)
 	{
 		$c = $this->getConnection();
+		$cls =  $this->getEntityType();
 
 		$sql = 'SELECT '.$this->getQueryColumnString().
 			" FROM [$this->dbTable]".
@@ -109,12 +123,17 @@ abstract class EntityTable extends Singleton
 		$q = $c->query($sql);
 		$r = $q->fetchAll();
 		if(count($r) == 0)
-			throw new ApplicationException('Entity does not exists');
+		{
+			if(!$can_create)
+				throw new ApplicationException('Entity does not exists');
+			$entity = $cls::createNewUninitializedInstance();
+			$this->createEntity($entity);
+			return $entity;
+		}
 		elseif(count($r) > 1)
 			throw new ApplicationException('Entity multiple matches!');
 
 		$data = $r[0];
-		$cls =  $this->getEntityType();
 		$entity = $cls::createNewUninitializedInstance();
 		$this->loadEntity($entity, $data);
 		return $entity;
@@ -149,6 +168,16 @@ abstract class EntityTable extends Singleton
 		}
 	}
 
+	protected function createEntity(IEntity $entity)
+	{
+		foreach($this->columns as $column)
+		{
+			$colname = $column->getName();
+			$val = $column->getDefaultValue();
+			$entity->set($colname, $val, IEntity::VERSION_NEW, true);
+		}
+	}
+
 	/**
 	 * Transform entity to database values
 	 * @param Entity $entity
@@ -168,15 +197,6 @@ abstract class EntityTable extends Singleton
 	{
 
 	}
-
-	/* ArrayAccess interface */
-	public function offsetExists ($offset) { return $this->hasColumn($offset); }
-	public function offsetGet ($offset) { return $this->getColumn($offset); }
-	public function offsetSet ($offset, $value) { throw new InvalidOperationException('Operation not alowed. Use addColumn() method instead.'); }
-	public function offsetUnset ($offset) { $this->removeColumn($offset); }
-
-	/* IteratorAggregate interface */
-	public function getIterator () { return new ArrayIterator($this->columns); }
 
 }
 

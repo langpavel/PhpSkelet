@@ -8,7 +8,7 @@ class HtmlForm extends HtmlWidget
 		if(!$this->hasAttribute('action'))
 			$this->setAttribute('action', URI::getCurrent()->setQuery());
 	}
-	
+
 	public function setName($name)
 	{
 		parent::setName($name);
@@ -21,5 +21,5 @@ class HtmlForm extends HtmlWidget
 		Html::Select($attributes, $content, $this);
 		return $this;
 	}
-	
+
 }

@@ -15,7 +15,7 @@ final class Application extends SafeObject implements ArrayAccess
 	const APP_STATE_DONE = 0x20;
 	const APP_STATE_FINISHING = 0x40;
 	const APP_STATE_FINISHED = 0x80;
-	
+
 	private static $instance = null;
 	private $app_state = Application::APP_STATE_SICK;
 	private $hooks = array();
@@ -33,24 +33,24 @@ final class Application extends SafeObject implements ArrayAccess
 			Application::$instance = new Application() :
 			Application::$instance;
 	}
-	
+
 	protected function __construct()
 	{
 		parent::__construct();
-		$this->variableSet = new VariableSet();
+		$this->variableSet = new \VariableSet();
 		$this->app_state = Application::APP_STATE_CREATED;
 	}
-	
+
 	protected function __clone()
 	{
 		throw new InvalidOperationException('Application cannot be cloned');
 	}
-	
+
 	public function getRequestUri()
 	{
 		return $this->request_uri;
 	}
-	
+
 	/**
 	 * Get current application state
 	 */
@@ -58,9 +58,9 @@ final class Application extends SafeObject implements ArrayAccess
 	{
 		return $this->app_state;
 	}
-	
+
 	/**
-	 * Check if application is in correct state, use bitwise or when multiple states are accepted 
+	 * Check if application is in correct state, use bitwise or when multiple states are accepted
 	 * @param int $required_state
 	 * @param bool $throw if will throw exception on mismatch, dafault throws
 	 * @throws ApplicationException
@@ -71,11 +71,11 @@ final class Application extends SafeObject implements ArrayAccess
 			if($throw)
 				throw new ApplicationException('Application is in state '.
 					$this->app_state.' but state '.$required_state.' required');
-			else 
+			else
 				return false;
 		return true;
 	}
-	
+
 	/**
 	 * register application hook
 	 * @param IApplicationHook $hook
@@ -85,15 +85,15 @@ final class Application extends SafeObject implements ArrayAccess
 		$this->checkState(Application::APP_STATE_CREATED_OR_INITIALIZING);
 		$this->hooks[] = $hook;
 	}
-	
+
 	protected function runHooks($method, $first_result = false)
 	{
 		if($this === null)
 			return false;
-		
+
 		try
 		{
-			
+
 			foreach($this->hooks as $hook)
 			{
 				$handled = $hook->$method($this);
@@ -107,7 +107,7 @@ final class Application extends SafeObject implements ArrayAccess
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Initialize application
 	 * @param unknown_type $request_host
@@ -120,7 +120,7 @@ final class Application extends SafeObject implements ArrayAccess
 
 		if($request_host === null)
 			$request_host = (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
-			
+
 		if($request_uri === null)
 		{
 			$request_uri = (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
@@ -128,18 +128,18 @@ final class Application extends SafeObject implements ArrayAccess
 			if($qmark > 0)
 				$request_uri = substr($request_uri, 0, $qmark);
 		}
-			
+
 		$this->request_host = $request_host;
 		$this->request_uri = $request_uri;
 
 		register_shutdown_function(array($this, 'finish'));
 
 		$this->runHooks('init', true);
-		
+
 		// advance to next state
 		$this->app_state = Application::APP_STATE_INITIALIZED;
 	}
-	
+
 	/**
 	 * Start processing requests
 	 */
@@ -147,14 +147,14 @@ final class Application extends SafeObject implements ArrayAccess
 	{
 		$this->checkState(Application::APP_STATE_INITIALIZED);
 		$this->app_state = Application::APP_STATE_RUNNING;
-				
+
 		// strip out
-		
+
 		$result = $this->runHooks('run', true);
-		
+
 		if(!$result)
 			$this->Http404();
-			
+
 		$this->app_state = Application::APP_STATE_DONE;
 	}
 
@@ -162,7 +162,7 @@ final class Application extends SafeObject implements ArrayAccess
 	{
 		// note that finish should by called explicitly in normal flow
 		// but is so called by register_shutdown_function
-		
+
 		if($this->app_state === Application::APP_STATE_FINISHED)
 			return true; // we fineshed correctly
 
@@ -171,17 +171,17 @@ final class Application extends SafeObject implements ArrayAccess
 			// TODO: Some good error/warning log mechanism should go there
 			echo "\nERROR: Application not correctly finished, error ocured while finishing\n";
 			return false;
-		}	
+		}
 		if($this->app_state !== Application::APP_STATE_DONE)
 		{
 			// TODO: Some good error/warning log mechanism should go there
 			echo "\nERROR: Application run not finish correctly\n";
 		}
-		
+
 		$this->app_state === Application::APP_STATE_FINISHING;
-		
+
 		$this->runHooks('finish');
-		
+
 		$this->app_state === Application::APP_STATE_FINISHED;
 	}
 
@@ -205,33 +205,33 @@ final class Application extends SafeObject implements ArrayAccess
 				break;
 			case 404:
 				$http_code_name = 'Not Found';
-				break;			
+				break;
 		}
 		header('HTTP/1.1 '.$http_code.' '.$http_code_name);
 		header('Content-Type: text/html');
-		
+
 		$errtext = "HTTP $http_code $http_code_name";
 		echo "<html>\n<head><title>$errtext</title></head>\n";
 		echo "<body>\n<h1>$errtext</h1>\n";
 		echo "<p>You see this page because your request is probably invalid.</p>";
 		echo "</body></html>";
 	}
-	
+
 	public function Http403($exit = true)
 	{
 		$this->showErrorPage(403, null, $exit);
 	}
-	
+
 	public function Http404($exit = true)
 	{
 		$this->showErrorPage(404, null, $exit);
 	}
-	
+
 	public function getExecutionTime()
 	{
 		return get_execution_time();
 	}
-	
+
 	// ArrayAccess - defer calls to VariableSet
 	public function offsetExists ($offset) { return $this->variableSet->isVar($offset); }
 	public function offsetGet ($offset) { return $this->variableSet->get($offset); }
@@ -241,4 +241,3 @@ final class Application extends SafeObject implements ArrayAccess
 }
 
 $_GLOBALS['application'] = Application::getInstance();
-

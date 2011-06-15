@@ -25,6 +25,11 @@ class ColumnId extends TableColumn
 		return parent::correctValue($value, $message, $strict);
 	}
 
+	public function getDefaultValue()
+	{
+		return new PrimaryKeyValueProxy(null);
+	}
+
 	public function fromDbFormat($value)
 	{
 		return new PrimaryKeyValueProxy($value);

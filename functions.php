@@ -16,10 +16,10 @@ function get_execution_time()
 		else
 		{
 			$microtime_start = microtime(true);
-			return 0.0; 
+			return 0.0;
 		}
-	}	
-	return microtime(true) - $microtime_start; 
+	}
+	return microtime(true) - $microtime_start;
 }
 get_execution_time();
 
@@ -55,11 +55,11 @@ function str_random($length = 8, $valid_chars = '0123456789qwertyuiopasdfghjklzx
  * Check if $text start with $required
  * @param unknown_type $required
  * @param unknown_type $text
- * @return bool 
+ * @return bool
  */
 function str_start_with($required, $text)
 {
-	return substr($text, 0, strlen($required)) === $required;	
+	return substr($text, 0, strlen($required)) === $required;
 }
 
 /**
@@ -83,13 +83,13 @@ function array_append(array &$array, $value)
 }
 
 /**
- * Behaves like array_merge_recursive and array_merge, but 
- * does not create new array if value is not array type, 
+ * Behaves like array_merge_recursive and array_merge, but
+ * does not create new array if value is not array type,
  * instead replace it as array_merge do
- * 
+ *
  * Source: http://www.php.net/manual/en/function.array-merge-recursive.php#104145
  */
-function array_merge_recursive_simple() 
+function array_merge_recursive_simple()
 {
     if (func_num_args() < 2) {
         trigger_error(__FUNCTION__ .' needs two or more array arguments', E_USER_WARNING);
@@ -154,24 +154,24 @@ function get_type($var)
 
 function get_POST($name, $default=null)
 {
-	return isset($_POST[$name]) ? $_POST[$name] : $default; 
+	return isset($_POST[$name]) ? $_POST[$name] : $default;
 }
 
 function get_GET($name, $default=null)
 {
-	return isset($_GET[$name]) ? $_GET[$name] : $default; 
+	return isset($_GET[$name]) ? $_GET[$name] : $default;
 }
 
 function get_POST_GET($name, $default=null)
 {
-	return isset($_POST[$name]) ? 
-		$_POST[$name] : 
-		(isset($_GET[$name]) ? $_GET[$name] : $default); 
+	return isset($_POST[$name]) ?
+		$_POST[$name] :
+		(isset($_GET[$name]) ? $_GET[$name] : $default);
 }
 
 function get_SERVER($name, $default=null)
 {
-	return isset($_SERVER[$name]) ? $_SERVER[$name] : $default; 
+	return isset($_SERVER[$name]) ? $_SERVER[$name] : $default;
 }
 
 function request_is_ajax()
@@ -198,6 +198,17 @@ function isnull($value)
 	return is_null($value);
 }
 
+function isnull_trim_empty($value)
+{
+	if($value instanceof DbNull)
+		return true;
+	if(is_null($value))
+		return true;
+	if(is_string($value) && trim($value) == '')
+		return true;
+	return ! ( (bool) $value);
+}
+
 /**
  * Write JSON response and exit
  */
@@ -208,7 +219,7 @@ function response_json($data)
 	header_nocache();
 	header('Content-type: application/json');
 	echo json_encode($data);
-	Application::getInstance()->done();	
+	Application::getInstance()->done();
 }
 
 function file_backup($file, $throw=true, $rename=false, $prefix='', $suffix='.bak')
@@ -219,14 +230,14 @@ function file_backup($file, $throw=true, $rename=false, $prefix='', $suffix='.ba
 	if($file->isDir())
 		if($throw) throw new InvalidOperationException('Cannot backup directory');
 		else return false;
-		
+
 	if($file->isLink())
 		if($throw) throw new InvalidOperationException('Cannot backup file, file is link');
 		else return false;
-		
+
 	$path = $file->getPath().'/';
 	$filename = $file->getFilename();
-	
+
 	$i = 0;
 	do
 	{
@@ -234,14 +245,14 @@ function file_backup($file, $throw=true, $rename=false, $prefix='', $suffix='.ba
 		$i++;
 	}
 	while(is_file($newfilename));
-	
-	$result = $rename ? 
+
+	$result = $rename ?
 		rename($file->getPathname(), $newfilename) :
 		copy($file->getPathname(), $newfilename);
-	
+
 	if(!$result)
 		if($throw) throw new InvalidOperationException('Cannot backup file "'.$filename.'" to "'.$newfilename.'"');
-	
+
 	return $result;
 }
 

@@ -5,7 +5,7 @@ interface IEntity extends ArrayAccess
 	// KEEP IN MIND THAT FOR EVERY DATABASE ROW THIS IS INSTANTIATED
 	// TRY STORE MINIMUM AS POSSIBLE IN ENTITY INSTANCE!!!
 	// IF POSSIBLE, MOVE ENTITY CONSTANT THINGS TO CLASS STATICS
-	
+
 	// FLAGS
 	const VERSION_DEFAULT = 0x00;
 	const VERSION_ORIGINAL_DB = 0x01;
@@ -30,23 +30,20 @@ interface IEntity extends ArrayAccess
 	 * @return EntityTable
 	 */
 	public static function getTable();
-	
+
 	public static function create();
 	public static function load();
-	public static function replace();
+	public static function loadOrCreate();
 	public static function exists();
 	public static function find();
-	
+
 	public function save();
 	public function delete();
-	
-	public function setPrimaryKey($id, $version = IEntity::VERSION_NEW);
-	public function getPrimaryKey($version = IEntity::VERSION_NEW);
-	
+
 	public function has($name, $version = null);
 	public function get($name, $version = IEntity::VERSION_NEW);
 	public function set($name, $value, $version = IEntity::VERSION_NEW);
-	
+
 	public function hasChanges();
 	public function getChanges();
 }

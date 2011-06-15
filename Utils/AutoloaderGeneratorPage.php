@@ -8,7 +8,7 @@
  */
 
 header('Content-Type: text/html');
- 
+
 echo '<?xml version="1.0" encoding="utf-8" ?>';
 
 ?>
@@ -27,7 +27,7 @@ $generator = new AutoloaderGenerator();
 
 if(isset($GLOBALS['generator_paths']))
 {
-	foreach($GLOBALS['generator_paths'] as $value) 
+	foreach($GLOBALS['generator_paths'] as $value)
 	{
 		if(is_array($value))
 			$generator->addPath($value[0], $value[1]);
@@ -35,8 +35,9 @@ if(isset($GLOBALS['generator_paths']))
 			$generator->addPath($value, true);
 	}
 }
-else 
+else
 	$generator->addPath(__DIR__.'/..', true);
+
 $generator->process();
 highlight_string($generator);
 $filename = realpath(__DIR__.'/../generated_code/').'/autoloader.php';

@@ -61,12 +61,12 @@ abstract class Entity implements IEntity
 
 	public static final function load()
 	{
-		return static::getTable()->load(func_get_args());
+		return static::getTable()->load(func_get_args(), null, false);
 	}
 
-	public static function replace()
+	public static function loadOrCreate()
 	{
-		return static::getTable()->replace(func_get_args());
+		return static::getTable()->load(func_get_args(), null, true);
 	}
 
 	public static function exists()
@@ -89,6 +89,7 @@ abstract class Entity implements IEntity
 		return static::getTable()->delete($this);
 	}
 
+	/*
 	public function setPrimaryKey($id, $version = IEntity::VERSION_NEW)
 	{
 		throw new NotImplementedException();
@@ -98,6 +99,7 @@ abstract class Entity implements IEntity
 	{
 		throw new NotImplementedException();
 	}
+	*/
 
 	public function set($name, $value, $version = Entity::VERSION_NEW, $trust_args = false)
 	{
@@ -129,7 +131,7 @@ abstract class Entity implements IEntity
 			$this->data[IEntity::VERSION_NEW_DB] = $this->data[IEntity::VERSION_ORIGINAL_DB];
 		}
 		else
-			$this->setValue($name, $this->getValue($name, $version = Entity::VERSION_OLD));
+			$this->setValue($name, $this->getValue($name, $version = IEntity::VERSION_ORIGINAL));
 	}
 
 	public function hasChanges()
